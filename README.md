@@ -1,5 +1,6 @@
 ## CareEasy Microservice Architecture
 
+![Architecure](Architecture.png)
 CaseEasy backend architecture has been completely planned on `microservice` as the core `API` exposer.
 
 ### Tech stack
@@ -17,7 +18,7 @@ CaseEasy backend architecture has been completely planned on `microservice` as t
 ### Typical Lifecycle of Request
 
 - User request the `api.careeasy.com` with login credentials as `JWT Token` payload. 
-- Login route checks for `Authentication` inside dynamoDB users schema and provides a valid `Authorization` with `Auth_Token` and `Auth_Key` as a response to the `Login` request.
+- Login route checks for `Authentication` inside dynamoDB users schema and provides a valid `Authorization` with `Auth_Token` and `Auth_Key` as a response to the `Login` request with encryption.
 
 Request:
 ````
@@ -30,7 +31,7 @@ Request:
 ````
 
 
-Response:
+JWT(Response):
 ````
     {
         Auth_key: `7WOPM08FGFJH7ZBDV7MA170HBEWII8RMHQ`,
@@ -45,10 +46,20 @@ Response:
             }
             tenants_associated: {
                 'logezycare': {
-                    Tenant_UUID: '7MA170H'
+                    'TENANT_UUID': '7MA170H',
+                    'DB_NAME': '',
+                    'DB_PASSWORD': '',
+                    'DB_PORT': '',
+                    'DB_USER': '',
+                    'Totat_users': 190
                 },
                 'avantacare': {
-                    Tenant_UUID: '7MA170G'
+                    'TENANT_UUID': '7MA170G',
+                    'DB_NAME': '',
+                    'DB_PASSWORD': '',
+                    'DB_PORT': '',
+                    'DB_USER': '',
+                    'Totat_users': 2000
                 }
             }
         }
@@ -58,6 +69,6 @@ Response:
 - Now based out on the `success` of `Authorization` we start communicating with the server tenants only to the given `tenants_associated`. 
 
 ### After Authorization
-1. Using the given `Auth_Key` and `Auth_Token` and `Tenant_UUID` start sending the request.
+1. Using the given `Auth_Key` and `Auth_Token` and `TENANT_UUID` start sending the request.
 2. `ConnectionResolver` Middleware will understand the `Tenant_UUID` header and start establishing connection with the given Tenant. 
   
