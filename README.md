@@ -50,3 +50,6 @@ Response:
         }
     }
 ````
+
+- Now based out on the `success` of `Authorization` we start communicating with the server tenants only to the given `tenants_associated`. 
+  
