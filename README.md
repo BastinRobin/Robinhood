@@ -43,13 +43,21 @@ Response:
                 education: [],
                 experiences: []
             }
-            tenants_associated: [
-                'logezycare',
-                'avantacare'
-            ]
+            tenants_associated: {
+                'logezycare': {
+                    Tenant_UUID: '7MA170H'
+                },
+                'avantacare': {
+                    Tenant_UUID: '7MA170G'
+                }
+            }
         }
     }
 ````
 
 - Now based out on the `success` of `Authorization` we start communicating with the server tenants only to the given `tenants_associated`. 
+
+### After Authorization
+1. Using the given `Auth_Key` and `Auth_Token` and `Tenant_UUID` start sending the request.
+2. `ConnectionResolver` Middleware will understand the `Tenant_UUID` header and start establishing connection with the given Tenant. 
   
