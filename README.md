@@ -1,6 +1,6 @@
 ## CareEasy Microservice Architecture
 
-![Architecure](Architecture.png)
+![Architecture](Architecture.png)
 CaseEasy backend architecture has been completely planned on `microservice` as the core `API` exposer.
 
 ### Tech stack
