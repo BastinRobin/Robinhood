@@ -6,20 +6,18 @@ import Server from '../server';
 describe('Examples', () => {
   it('should get all examples', () =>
     request(Server)
-      .get('/api/v1/examples')
+      .get('/v1/users')
       .expect('Content-Type', /json/)
-      .then(r => {
-        expect(r.body)
-          .to.be.an('array')
-          .of.length(2);
+      .then((r) => {
+        expect(r.body).to.be.an('array').of.length(2);
       }));
 
   it('should add a new example', () =>
     request(Server)
-      .post('/api/v1/examples')
+      .post('/v1/users')
       .send({ name: 'test' })
       .expect('Content-Type', /json/)
-      .then(r => {
+      .then((r) => {
         expect(r.body)
           .to.be.an('object')
           .that.has.property('name')
@@ -28,9 +26,9 @@ describe('Examples', () => {
 
   it('should get an example by id', () =>
     request(Server)
-      .get('/api/v1/examples/2')
+      .get('/v1/users/2')
       .expect('Content-Type', /json/)
-      .then(r => {
+      .then((r) => {
         expect(r.body)
           .to.be.an('object')
           .that.has.property('name')
