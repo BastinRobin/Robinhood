@@ -88,7 +88,6 @@ npm run dev
 npm run test
 ```
 
----
 
 ## How do I modify the example API and make it my own?
 
@@ -225,4 +224,3 @@ npm run test:debug
     Org3:
       - Profile pk Users.id
 ````
-  
