@@ -14,10 +14,13 @@
     "test:debug": "mocha -r ts-node/register --inspect-brk test/**/*.ts --exit"
   },
   "dependencies": {
+    "@types/jsonwebtoken": "^8.5.0",
+    "aws-sdk": "^2.793.0",
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "node-fetch": "^2.6.1",
     "pg-promise": "^10.7.3",
     "pino": "^6.7.0",
@@ -27,6 +30,7 @@
     "@types/chai": "^4.2.13",
     "@types/express": "^4.17.8",
     "@types/mocha": "^8.0.3",
+    "@types/node": "^14.14.8",
     "@types/pino": "^6.3.2",
     "@typescript-eslint/eslint-plugin": "^4.4.0",
     "@typescript-eslint/parser": "^4.4.0",

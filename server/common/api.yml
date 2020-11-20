@@ -11,6 +11,8 @@ tags:
     description: List of all Tenants
   - name: Specification
     description: The swagger API specification
+  - name: Auth
+    description: Authentication API
 
 consumes:
   - application/json
@@ -92,3 +94,25 @@ paths:
       responses:
         200:
           description: Return the API specification
+
+  /auth:
+    post:
+      tags:
+        - Auth
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          schema:
+            type: object
+            required:
+              - user_name
+                password
+            properties:
+              user_name:
+                type: string
+              password:
+                type: string
+      responses:
+        200:
+          description: Return the API authentication and authorization
