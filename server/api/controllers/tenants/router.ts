@@ -2,6 +2,7 @@ import express from 'express';
 import controller from './controller';
 export default express
   .Router()
-  .get('/', controller.listAllTenants)
-  .post('/create', controller.createTenants)
-  .get('/:id', controller.getItem);
+  .post('/', controller.create)
+  .get('/', controller.findAll)
+  .get('/:tenant_name', controller.find)
+  .delete('/:tenant_name', controller.delete);

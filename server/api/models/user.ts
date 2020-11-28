@@ -1,4 +1,5 @@
 export interface User {
+  id: number;
   user_name: string;
   password?: string;
   date_created: Date;
@@ -7,6 +8,7 @@ export interface User {
   auth?: boolean;
   token?: string;
   userTenants?: unknown;
+  tenant_id?: string;
 }
 
 export interface Auth {

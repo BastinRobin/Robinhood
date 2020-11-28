@@ -1,9 +1,9 @@
 swagger: "2.0"
 info:
   version: 1.0.0
-  title: carehome-core
+  title: Carehome
   description: Carehome Microservices
-basePath: /api/v1
+basePath: /v1
 tags:
   - name: Users
     description: Simple example endpoints

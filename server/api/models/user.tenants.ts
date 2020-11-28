@@ -1,5 +1,5 @@
 export interface UserTenant {
   id: number;
-  userName: string;
-  tenantName: string;
+  user_id: number;
+  tenant_id: number;
 }
