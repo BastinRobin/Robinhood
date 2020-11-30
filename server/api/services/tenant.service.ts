@@ -1,18 +1,21 @@
 import L from '../../common/logger';
 import DynamoDB from '../../common/db/dynamo.db';
 import { Tenant } from './../../api/models/tenant';
+import { CommonService } from './../services/common.service';
 
 export class TenantService {
-  async create(params: Tenant): Promise<Tenant> {
+  async create(params: any): Promise<Tenant> {
     L.info(`Creating new tenant with name ${params.tenant_name}`);
-    const tenantName = await this.convertToSlug(params.tenant_name.toString());
+    const tenantName = await CommonService.convertToSlug(
+      params.organization.toString()
+    );
     const organization = params.organization.toString();
     const email = params.email.toString();
-    const dbName = params.db_name.toString();
-    const dbUser = params.db_user.toString();
-    const dbPassword = params.db_password.toString();
-    const dbPort = params.db_port.toString();
-    const dbHost = params.db_host.toString();
+    const dbName = tenantName;
+    const dbUser = params.db_user;
+    const dbPassword = params.db_password;
+    const dbPort = params.db_port;
+    const dbHost = params.db_host;
     const config = JSON.stringify(params.config);
     const isDeleted = params.is_deleted;
     const tenant: any = await DynamoDB.find('tenants', {
@@ -36,10 +39,10 @@ export class TenantService {
         organization: organization,
         email: email,
         db_name: dbName,
-        db_user: dbUser,
-        db_password: dbPassword,
-        db_port: dbPort,
-        db_host: dbHost,
+        db_user: !dbUser ? process.env.DB_USER : dbUser,
+        db_password: !dbPassword ? process.env.DB_PASSWORD : dbPassword,
+        db_port: !dbPort ? process.env.DB_PORT : dbPort,
+        db_host: !dbHost ? process.env.DB_HOST : dbHost,
         config: config,
         is_deleted: isDeleted,
       };

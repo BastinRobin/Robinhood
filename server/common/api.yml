@@ -9,8 +9,6 @@ tags:
     description: Simple example endpoints
   - name: Tenants
     description: List of all Tenants
-  - name: Specification
-    description: The swagger API specification
   - name: Auth
     description: Authentication API
 
@@ -25,29 +23,79 @@ definitions:
     type: object
     title: User
     required:
-      - name
+      - user_name
+      - password
+      - email
+      - enabled
     properties:
-      name:
+      user_name:
         type: string
-        example: no_stress
+        example: admin
+      password:
+        type: string
+        example: admin
+      email:
+        type: string
+        example: admin@example.com
+      enabled:
+        type: boolean
+        example: true
+  TenantBody:
+    type: object
+    title: Tenant
+    required:
+      - tenant_name
+      - organization
+      - config
+      - is_deleted
+      - db_user
+      - db_password
+      - db_port
+      - db_host
+      - email
+    properties:
+      organization:
+        type: string
+        example: Logezy Info Tech
+      config:
+        type: string
+        example: '{some json string}'
+      is_deleted:
+        type: boolean
+        example: true
+      db_user:
+        type: string
+        example: home_care
+      db_password:
+        type: string
+        example: your_db_password
+      db_port:
+        type: integer
+        example: 3306
+      db_host:
+        type: string
+        example: localhost
+      email:
+        type: string
+        example: admin@logezy.com
 
 paths:
   /users:
     get:
       tags:
         - Users
-      description: Fetch all examples
+      description: Fetch all users
       responses:
         200:
-          description: Returns all examples
+          description: Returns all users
     post:
       tags:
         - Users
       description: Create a new example
       parameters:
-        - name: example
+        - name: body
           in: body
-          description: an example
+          description: User object that needs to be added to the store
           required: true
           schema: 
             $ref: "#/definitions/UserBody"
@@ -55,59 +103,101 @@ paths:
         200:
           description: Returns all examples
   
-  /users/{id}:
+  /users/{user_name}:
     get:
       tags:
         - Users
       parameters:
-        - name: id
+        - name: user_name
           in: path
           required: true
-          description: The id of the example to retrieve
-          type: integer
+          description: The user_name of the user to retrieve
+          type: string
+      responses:
+        201:
+          description: Return the user with the specified user_name
+        404:
+          description: User not found
+    delete:
+      tags:
+        - Users
+      parameters:
+        - name: user_name
+          in: path
+          required: true
+          description: The user_name of the user to delete
+          type: string
       responses:
         200:
-          description: Return the example with the specified id
+          description: Delete the user with the specified user_name
         404:
-          description: Example not found
+          description: User not found
 
-  /tenants/:
+  /tenants:
+    get:
+      tags:
+        - Tenants
+      description: Fetch all tenants
+      responses:
+        200:
+          description: Returns all tenants
+    post:
+      tags:
+        - Tenants
+      summary: Create a new tenant
+      parameters:
+        - name: body
+          in: body
+          description: Tenant object that needs to be added to the store
+          required: true
+          schema:
+            $ref: "#/definitions/TenantBody"
+      responses:
+        200:
+          description: Created new tenant
+  
+  /tenants/{tenant_name}:
     get:
       tags:
         - Tenants
       parameters:
-        - name: id
+        - name: tenant_name
           in: path
           required: true
-          description: The id of the example to retrieve
-          type: integer
+          description: The tenant_name of the user to retrieve
+          type: string
       responses:
-        200:
-          description: Return the example with the specified id
+        201:
+          description: Return the user with the specified tenant_name
         404:
-          description: Example not found
-
-  /spec:
-    get:
+          description: User not found
+    delete:
       tags:
-        - Specification
+        - Tenants
+      parameters:
+        - name: tenant_name
+          in: path
+          required: true
+          description: The tenant_name of the user to delete
+          type: string
       responses:
         200:
-          description: Return the API specification
+          description: Delete the user with the specified tenant_name
+        404:
+          description: User not found
 
-  /auth:
+  /auth/login:
     post:
       tags:
         - Auth
       consumes:
         - application/json
       parameters:
-        - in: body
+        - name: body
+          in: body
           schema:
             type: object
-            required:
-              - user_name
-                password
+            required: true
             properties:
               user_name:
                 type: string
@@ -116,3 +206,31 @@ paths:
       responses:
         200:
           description: Return the API authentication and authorization
+  /auth/signup:
+    post:
+      tags:
+        - Auth
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            required: true        
+            properties:
+              user_name:
+                type: string
+              password:
+                type: string
+              email:
+                type: string
+              organization:
+                type: string
+              is_deleted:
+                type: boolean
+              config:
+                type string
+      responses:
+        200:
+          description: Will create new tenant, user, user tenant
