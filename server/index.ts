@@ -1,4 +1,5 @@
 import './common/env';
+import 'reflect-metadata';
 import Server from './common/server';
 import routes from './routes';
 

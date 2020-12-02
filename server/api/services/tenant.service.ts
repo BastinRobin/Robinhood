@@ -1,5 +1,5 @@
 import L from '../../common/logger';
-import DynamoDB from '../../common/db/dynamo.db';
+import DB from '../../common/db/dynamo.db';
 import { Tenant } from './../../api/models/tenant';
 import { CommonService } from './../services/common.service';
 
@@ -18,7 +18,7 @@ export class TenantService {
     const dbHost = params.db_host;
     const config = JSON.stringify(params.config);
     const isDeleted = params.is_deleted;
-    const tenant: any = await DynamoDB.find('tenants', {
+    const tenant: any = await DB.find('tenants', {
       tenant_name: tenantName,
     });
 
@@ -47,7 +47,7 @@ export class TenantService {
         is_deleted: isDeleted,
       };
 
-      const res: unknown = await DynamoDB.create('tenants', dbParams);
+      const res: unknown = await DB.create('tenants', dbParams);
       if (res instanceof Error) {
         throw new Error('Error while creating new tenant.');
       }
@@ -61,21 +61,17 @@ export class TenantService {
 
   async find(tenantName: string): Promise<string[]> {
     L.info(`Fetching ${tenantName} details`);
-    return Promise.resolve(
-      DynamoDB.find('tenants', { tenant_name: tenantName })
-    );
+    return Promise.resolve(DB.find('tenants', { tenant_name: tenantName }));
   }
 
   async findAll(): Promise<string[]> {
     L.info(`Fetching all tenants`);
-    return Promise.resolve(DynamoDB.findAll('tenants'));
+    return Promise.resolve(DB.findAll('tenants'));
   }
 
   async delete(tenantName: string): Promise<string[]> {
     L.info(`Fetching ${tenantName} details`);
-    return Promise.resolve(
-      DynamoDB.delete('tenants', { tenant_name: tenantName })
-    );
+    return Promise.resolve(DB.delete('tenants', { tenant_name: tenantName }));
   }
 
   async convertToSlug(text: string): Promise<string> {

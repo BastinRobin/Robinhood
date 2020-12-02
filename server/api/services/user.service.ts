@@ -1,5 +1,5 @@
 import L from '../../common/logger';
-import DynamoDB from '../../common/db/dynamo.db';
+import DB from '../../common/db/dynamo.db';
 import { User } from './../../api/models/user';
 
 import * as crypto from 'crypto';
@@ -47,17 +47,17 @@ export class UserService {
 
   async find(userName: string): Promise<string[]> {
     L.info(`Fetching ${userName} details`);
-    return Promise.resolve(DynamoDB.find('users', { user_name: userName }));
+    return Promise.resolve(DB.find('users', { user_name: userName }));
   }
 
   async findAll(): Promise<string[]> {
     L.info(`Fetching all users`);
-    return Promise.resolve(DynamoDB.findAll('users'));
+    return Promise.resolve(DB.findAll('users'));
   }
 
   async delete(userName: string): Promise<string[]> {
     L.info(`Fetching ${userName} details`);
-    return Promise.resolve(DynamoDB.delete('users', { user_name: userName }));
+    return Promise.resolve(DB.delete('users', { user_name: userName }));
   }
 }
 

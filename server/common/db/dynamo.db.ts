@@ -5,7 +5,7 @@ AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
-const DB = new AWS.DynamoDB.DocumentClient();
+const AWSDDB = new AWS.DynamoDB.DocumentClient();
 
 export interface Query {
   TableName: string;
@@ -26,7 +26,7 @@ export interface FindAll {
   Key?: any;
   ExclusiveStartKey?: any;
 }
-export class DynamoDB {
+export class DB {
   /**
    * [findAll to fetch all records from table]
    *
@@ -43,7 +43,7 @@ export class DynamoDB {
       const scanResults = [];
       let items;
       do {
-        items = await DB.scan(dbParams).promise();
+        items = await AWSDDB.scan(dbParams).promise();
         items.Items.forEach((item) => scanResults.push(item));
         dbParams.ExclusiveStartKey = items.LastEvaluatedKey;
       } while (typeof items.LastEvaluatedKey != 'undefined');
@@ -69,7 +69,7 @@ export class DynamoDB {
     };
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const data: any = await DB.get(dbParams).promise();
+      const data: any = await AWSDDB.get(dbParams).promise();
       return data.Item;
     } catch (err) {
       console.log('Failure', err.message);
@@ -101,7 +101,7 @@ export class DynamoDB {
     console.log('dbParams', dbParams);
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const data: any = await DB.query(dbParams).promise();
+      const data: any = await AWSDDB.query(dbParams).promise();
       return data.Item;
     } catch (err) {
       console.log('Failure', err.message);
@@ -123,7 +123,7 @@ export class DynamoDB {
       Item: params,
     };
     try {
-      await DB.put(dbParams).promise();
+      await AWSDDB.put(dbParams).promise();
       return [params, true];
     } catch (err) {
       console.log('Failure', err);
@@ -146,7 +146,7 @@ export class DynamoDB {
     };
     console.log('dbParams', dbParams);
     try {
-      await DB.delete(dbParams).promise();
+      await AWSDDB.delete(dbParams).promise();
       return ['Deleted successfully'];
     } catch (err) {
       console.log('Failure', err);
@@ -155,4 +155,4 @@ export class DynamoDB {
   };
 }
 
-export default new DynamoDB();
+export default new DB();

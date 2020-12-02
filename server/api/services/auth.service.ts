@@ -1,5 +1,5 @@
 import L from '../../common/logger';
-import DynamoDB from '../../common/db/dynamo.db';
+import DB from '../../common/db/dynamo.db';
 import { User, Auth } from './../../api/models/user';
 import { TenantService } from './../services/tenant.service';
 
@@ -20,7 +20,7 @@ export class AuthService {
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const user: any = await DynamoDB.find('users', { user_name: userName });
+      const user: any = await DB.find('users', { user_name: userName });
       if (user instanceof Error) {
         throw new Error('Something went wrong');
       }
@@ -38,7 +38,7 @@ export class AuthService {
       });
 
       const userTenants = [];
-      const userTenant: any = await DynamoDB.findBy(
+      const userTenant: any = await DB.findBy(
         'user_tenants',
         '#user_id = :v_user_id',
         {
@@ -52,7 +52,7 @@ export class AuthService {
       console.log('userTenant', userTenant);
       if (userTenant) {
         for (const item of userTenant.Items) {
-          const tenant: any = await DynamoDB.find('tenants', {
+          const tenant: any = await DB.find('tenants', {
             tenant_id: item.tenant.id,
           });
           delete tenant.db_password;
@@ -99,7 +99,7 @@ export class AuthService {
       if (tenant instanceof Error) {
         throw new Error('Something went wrong');
       }
-      const user = await DynamoDB.find('users', { user_name: userName });
+      const user = await DB.find('users', { user_name: userName });
       if (user instanceof Error) {
         throw new Error('Something went wrong');
       }
@@ -114,7 +114,7 @@ export class AuthService {
           enabled: 1,
         };
 
-        const responce = await DynamoDB.create('users', dbUserParams);
+        const responce = await DB.create('users', dbUserParams);
         if (responce instanceof Error) {
           throw new Error('Error while creating user.');
         }
@@ -126,10 +126,7 @@ export class AuthService {
           date_created: Date().toString(),
         };
 
-        const userTenant = await DynamoDB.create(
-          'user_tenants',
-          dbUserTenantParams
-        );
+        const userTenant = await DB.create('user_tenants', dbUserTenantParams);
 
         if (userTenant instanceof Error) {
           throw new Error('Error while creating user tenant.');
