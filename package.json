@@ -21,6 +21,8 @@
     "node-fetch": "^2.6.1",
     "pg-promise": "^10.7.3",
     "pino": "^6.7.0",
+    "replace-in-file": "^6.1.0",
+    "replace-in-files": "^3.0.0",
     "swagger-express-middleware": "^4.0.2"
   },
   "devDependencies": {
