@@ -14,7 +14,7 @@ export class UserService {
     const hash = crypto.createHmac('sha512', encryptionKey).update(password);
     const hashedPass = hash.digest('hex').toString();
     try {
-      const user = await DynamoDB.find('users', { user_name: userName });
+      const user = await DB.find('users', { user_name: userName });
       if (user instanceof Error) {
         throw new Error('Something went wrong');
       }
@@ -29,7 +29,7 @@ export class UserService {
           enabled: 1,
         };
 
-        const responce = await DynamoDB.create('users', dbUserParams);
+        const responce = await DB.create('users', dbUserParams);
         if (responce instanceof Error) {
           throw new Error('Error while creating user.');
         }
