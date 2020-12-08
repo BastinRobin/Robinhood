@@ -11,12 +11,13 @@ tags:
     description: List of all Tenants
   - name: Auth
     description: Authentication API
+  - name: Profile
+    description: Profile API
 
 consumes:
   - application/json
 produces:
   - application/json
-
 
 definitions:
   UserBody:
@@ -78,6 +79,73 @@ definitions:
       email:
         type: string
         example: admin@logezy.com
+  ProfileBody:
+    type: object
+    title: Profile
+    required:
+      - profile_type_id
+      - user_id
+      - first_name
+      - last_name
+      - title
+      - email
+      - mobile_no
+      - phone1
+      - gender
+      - date_of_birth
+      - martial_status
+    properties:
+      profile_type_id:
+        type: integer
+        example: 1
+      user_id:
+        type: integer
+        example: 2
+      first_name:
+        type: string
+        example: 'Nijesh'
+      last_name:
+        type: string
+        example: 'W'
+      nick_name:
+        type: string
+        example: 'Nigesh'
+      image:
+        type: string
+        example: 'http://google.com/image.jpg'
+      title:
+        type: string
+        example: 'Mr'
+      email:
+        type: string
+        example: 'admin@text.com'
+      mobile_no:
+        type: string
+        example: '123456789'
+      phone1:
+        type: string
+        example: '1234567890'
+      phone2:
+        type: string
+        example: '1234567890'
+      gender:
+        type: string
+        example: 'Male'
+      religion:
+        type: string
+        example: 'Hindu'
+      martial_status:
+        type: string
+        example: 'Single'
+      date_of_birth:
+        type: string
+        example: '17/01/1991'
+      is_enabled:
+        type: boolean
+        example: true
+      is_deleted:
+        type: boolean
+        example: false
 
 paths:
   /users:
@@ -234,3 +302,74 @@ paths:
       responses:
         200:
           description: Will create new tenant, user, user tenant
+  
+  /profile:
+    get:
+      tags:
+        - Profile
+      description: Fetch all profiles
+      responses:
+        200:
+          description: Returns all profiles
+    post:
+      tags:
+        - Profile
+      summary: Create a new profile
+      parameters:
+        - name: body
+          in: body
+          description: Profile object that needs to be added to the store
+          required: true
+          schema:
+            $ref: "#/definitions/ProfileBody"
+      responses:
+        200:
+          description: Created new profile
+  /profile/{id}:
+    get:
+      tags:
+        - Profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the Profile to retrieve
+          type: string
+      responses:
+        201:
+          description: Return the Profile with the specified id
+        404:
+          description: Profile not found
+    put:
+      tags:
+        - Profile
+      summary: Update existing profile
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "id that need to be updated"
+          required: true
+          type: "integer"
+        - in: "body"
+          name: "body"
+          description: "Updated profile object"
+          required: true
+          schema:
+            $ref: "#/definitions/ProfileBody"
+      responses:
+        200:
+          description: Update profile
+    delete:
+      tags:
+        - Profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the Profile to delete
+          type: string
+      responses:
+        200:
+          description: Delete the Profile with the specified id
+        404:
+          description: Profile not found

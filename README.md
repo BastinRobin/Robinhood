@@ -224,3 +224,13 @@ npm run test:debug
     Org3:
       - Profile pk Users.id
 ````
+
+````
+- Write the API Documentation 
+- Write the skeleton function
+- Write minimum 5 to 10 testcases which should fail at first attempt
+- Make the skeleton function in such a way that all tests are passing. 
+- ECMA6 as the standard way of writing code. 
+- TypeScript will be our base compiler. 
+- MERN stack. 
+````
