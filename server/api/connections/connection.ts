@@ -10,4 +10,13 @@ export const Connection = createConnection({
   migrations: [__dirname + '/../migrations/*{.js,.ts}'],
   synchronize: true,
   logging: false,
+
+  // type: 'mongodb',
+  // host: 'localhost',
+  // port: 27017,
+  // database: 'test',
+  // synchronize: true,
+  // logging: false,
+  // entities: [__dirname + '/../models/*{.js,.ts}'],
+  // migrations: [__dirname + '/../migrations/*{.js,.ts}'],
 });

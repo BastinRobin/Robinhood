@@ -3,5 +3,6 @@ import controller from './controller';
 export default express
   .Router()
   .post('/login', controller.login)
-  .post('/signup', controller.signup)
+  .post('/client/signup', controller.clientSignup)
+  .post('/carer/signup', controller.carerSignup)
   .get('/logout', controller.login);

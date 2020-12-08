@@ -170,7 +170,6 @@ paths:
       responses:
         200:
           description: Returns all examples
-  
   /users/{user_name}:
     get:
       tags:
@@ -223,7 +222,6 @@ paths:
       responses:
         200:
           description: Created new tenant
-  
   /tenants/{tenant_name}:
     get:
       tags:
@@ -274,7 +272,7 @@ paths:
       responses:
         200:
           description: Return the API authentication and authorization
-  /auth/signup:
+  /auth/client/signup:
     post:
       tags:
         - Auth
@@ -302,6 +300,28 @@ paths:
       responses:
         200:
           description: Will create new tenant, user, user tenant
+  /auth/carer/signup:
+    post:
+      tags:
+        - Auth
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            required: true        
+            properties:
+              user_name:
+                type: string
+              password:
+                type: string
+              slug:
+                type: string
+      responses:
+        200:
+          description: Will signup new carer
   
   /profile:
     get:
