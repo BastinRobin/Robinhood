@@ -5,7 +5,7 @@ export const Connection = createConnection({
   port: 5432,
   username: 'postgres',
   password: 'qwerty123',
-  database: 'careHome',
+  database: 'carehome',
   entities: [__dirname + '/../models/*{.js,.ts}'],
   migrations: [__dirname + '/../migrations/*{.js,.ts}'],
   synchronize: true,
