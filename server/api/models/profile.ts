@@ -8,10 +8,10 @@ import {
 } from 'typeorm';
 @Entity()
 export class Profile extends BaseEntity {
-  // @PrimaryGeneratedColumn()
-  // id: number;
-  @ObjectIdColumn()
-  id: ObjectID;
+  @PrimaryGeneratedColumn()
+  id: number;
+  // @ObjectIdColumn()
+  // id: ObjectID;
 
   @Column()
   user_id: number;

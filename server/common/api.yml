@@ -281,6 +281,7 @@ paths:
       parameters:
         - name: body
           in: body
+          required: true    
           schema:
             type: object
             required: true        
@@ -296,7 +297,7 @@ paths:
               is_deleted:
                 type: boolean
               config:
-                type string
+                type: string
       responses:
         200:
           description: Will create new tenant, user, user tenant
@@ -309,6 +310,7 @@ paths:
       parameters:
         - name: body
           in: body
+          required: true
           schema:
             type: object
             required: true        
