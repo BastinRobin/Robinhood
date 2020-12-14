@@ -2,15 +2,11 @@ import Connection from './../connections/mondo.db';
 import L from '../../common/logger';
 import { ObjectID } from 'mongodb';
 
-export class ProfileService {
+export class ProfileTypeService {
   async findAll(): Promise<unknown[]> {
-    L.info('fetching all profiles');
+    L.info('fetching all profiletypes');
     try {
-      const profiles: unknown[] = await Connection.db
-        .collection('profile')
-        .find()
-        .toArray();
-      return profiles;
+      return await Connection.db.collection('profiletype').find().toArray();
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -20,14 +16,11 @@ export class ProfileService {
   }
 
   async findById(id: string): Promise<unknown> {
-    L.info(`fetching profile for id ${id}`);
+    L.info(`fetching profiletype for id ${id}`);
     try {
-      const profiles: unknown = await Connection.db
-        .collection('profile')
-        .findOne({
-          _id: new ObjectID(id),
-        });
-      return profiles;
+      return await Connection.db.collection('profiletype').findOne({
+        _id: new ObjectID(id),
+      });
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -37,12 +30,9 @@ export class ProfileService {
   }
 
   async create(body: unknown): Promise<unknown> {
-    L.info(`creating profile`);
+    L.info(`creating profiletype`);
     try {
-      const profile: unknown = await Connection.db
-        .collection('profile')
-        .insertOne(body);
-      return profile;
+      return await Connection.db.collection('profiletype').insertOne(body);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -54,10 +44,9 @@ export class ProfileService {
   async update(body: unknown, id: string): Promise<unknown> {
     L.info(`updating profile for id ${id}`);
     try {
-      const profile: unknown = await Connection.db
-        .collection('profile')
+      return await Connection.db
+        .collection('profiletype')
         .findOneAndUpdate({ _id: new ObjectID(id) }, { $set: body });
-      return profile;
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -69,10 +58,9 @@ export class ProfileService {
   async deleteById(id: string): Promise<unknown> {
     L.info(`deleting profile for id ${id}`);
     try {
-      const profile: unknown = await Connection.db
-        .collection('profile')
+      return await Connection.db
+        .collection('profiletype')
         .deleteOne({ _id: new ObjectID(id) });
-      return profile;
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -82,4 +70,4 @@ export class ProfileService {
   }
 }
 
-export default new ProfileService();
+export default new ProfileTypeService();

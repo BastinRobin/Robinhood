@@ -13,6 +13,8 @@ tags:
     description: Authentication API
   - name: Profile
     description: Profile API
+  - name: ProfileType
+    description: Profile Type API
 
 consumes:
   - application/json
@@ -96,11 +98,13 @@ definitions:
       - martial_status
     properties:
       profile_type_id:
-        type: integer
+        type: string
         example: 1
       user_id:
         type: integer
         example: 2
+      code:
+        type: string
       first_name:
         type: string
         example: 'Nijesh'
@@ -146,6 +150,15 @@ definitions:
       is_deleted:
         type: boolean
         example: false
+  ProfileTypeBody:
+    type: object
+    title: ProfileType
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        example: 'Resident'
 
 paths:
   /users:
@@ -170,7 +183,6 @@ paths:
       responses:
         200:
           description: Returns all examples
-  
   /users/{user_name}:
     get:
       tags:
@@ -223,7 +235,6 @@ paths:
       responses:
         200:
           description: Created new tenant
-  
   /tenants/{tenant_name}:
     get:
       tags:
@@ -274,7 +285,7 @@ paths:
       responses:
         200:
           description: Return the API authentication and authorization
-  /auth/signup:
+  /auth/client/signup:
     post:
       tags:
         - Auth
@@ -283,6 +294,7 @@ paths:
       parameters:
         - name: body
           in: body
+          required: true    
           schema:
             type: object
             required: true        
@@ -298,10 +310,33 @@ paths:
               is_deleted:
                 type: boolean
               config:
-                type string
+                type: string
       responses:
         200:
           description: Will create new tenant, user, user tenant
+  /auth/carer/signup:
+    post:
+      tags:
+        - Auth
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: true        
+            properties:
+              user_name:
+                type: string
+              password:
+                type: string
+              slug:
+                type: string
+      responses:
+        200:
+          description: Will signup new carer
   
   /profile:
     get:
@@ -373,3 +408,73 @@ paths:
           description: Delete the Profile with the specified id
         404:
           description: Profile not found
+  /profiletype:
+    get:
+      tags:
+        - ProfileType
+      description: Fetch all profile types
+      responses:
+        200:
+          description: Returns all profile types
+    post:
+      tags:
+        - ProfileType
+      summary: Create a new profile type
+      parameters:
+        - name: body
+          in: body
+          description: Profile type object that needs to be added to the store
+          required: true
+          schema:
+            $ref: "#/definitions/ProfileTypeBody"
+      responses:
+        200:
+          description: Created new profile type
+  /profiletype/{id}:
+    get:
+      tags:
+        - ProfileType
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the ProfileType to retrieve
+          type: string
+      responses:
+        201:
+          description: Return the ProfileType with the specified id
+        404:
+          description: ProfileType not found
+    put:
+      tags:
+        - ProfileType
+      summary: Update existing profile
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "id that need to be updated"
+          required: true
+          type: "integer"
+        - in: "body"
+          name: "body"
+          description: "Updated profile object"
+          required: true
+          schema:
+            $ref: "#/definitions/ProfileTypeBody"
+      responses:
+        200:
+          description: Update profile type
+    delete:
+      tags:
+        - ProfileType
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the ProfileType to delete
+          type: string
+      responses:
+        200:
+          description: Delete the ProfileType with the specified id
+        404:
+          description: ProfileType not found

@@ -68,8 +68,8 @@ export class AuthService {
     }
   }
 
-  async signup(params: any): Promise<string[]> {
-    L.info(`Signing up new user with username ${params.user_name}`);
+  async clientSignup(params: any): Promise<string[]> {
+    L.info(`Signing up new client with username ${params.user_name}`);
     const organization = params.organization;
     const dbUser = params.db_user;
     const dbPassword = params.db_password;
@@ -136,6 +136,73 @@ export class AuthService {
         throw new Error(
           'Unable to add user, because the userName, and or, email address is already associated with an existing account.'
         );
+      }
+    } catch (error) {
+      if (error) {
+        return error.message;
+      }
+    }
+  }
+
+  async carerSignup(params: any): Promise<string[]> {
+    L.info(`Signing up new carer with username ${params.user_name}`);
+    const slug = params.slug;
+    const userName = params.user_name;
+    const email = params.email;
+    const password = params.password;
+    const encryptionKey = process.env.ENCRYPTION_KEY as string;
+    const hash = crypto.createHmac('sha512', encryptionKey).update(password);
+    const hashedPass = hash.digest('hex').toString();
+    try {
+      const tenant: any = await DB.find('tenants', { tenant_name: slug });
+      if (tenant instanceof Error) {
+        throw new Error('Something went wrong');
+      }
+
+      const user: any = await DB.find('users', { user_name: userName });
+      if (user instanceof Error) {
+        throw new Error('Something went wrong');
+      }
+
+      if (!user) {
+        const dbUserParams = {
+          id: '' + new Date().getTime(),
+          password: hashedPass,
+          email: email,
+          user_name: userName,
+          date_created: Date().toString(),
+          enabled: 1,
+        };
+
+        const responce = await DB.create('users', dbUserParams);
+        if (responce instanceof Error) {
+          throw new Error('Error while creating user.');
+        }
+
+        const dbUserTenantParams = {
+          id: new Date().getTime(),
+          user_id: +dbUserParams.id,
+          tenant_id: tenant.id,
+          date_created: Date().toString(),
+        };
+
+        const userTenant = await DB.create('user_tenants', dbUserTenantParams);
+
+        if (userTenant instanceof Error) {
+          throw new Error('Error while creating user tenant.');
+        }
+        return responce;
+      } else {
+        // User already exist need to add new user tenant
+        const dbUserTenantParams = {
+          id: new Date().getTime(),
+          user_id: +user.id,
+          tenant_id: tenant.id,
+          date_created: Date().toString(),
+        };
+
+        await DB.create('user_tenants', dbUserTenantParams);
+        return user;
       }
     } catch (error) {
       if (error) {

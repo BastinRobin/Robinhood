@@ -5,6 +5,7 @@ import http from 'http';
 import os from 'os';
 import cookieParser from 'cookie-parser';
 import l from './logger';
+import Connection from './../api/connections/mondo.db';
 
 import installValidator from './swagger';
 
@@ -25,6 +26,18 @@ export default class ExpressServer {
     app.use(bodyParser.text({ limit: process.env.REQUEST_LIMIT || '100kb' }));
     app.use(cookieParser(process.env.SESSION_SECRET));
     app.use(express.static(`${root}/public`));
+    Connection.connect(
+      {
+        url: 'mongodb://localhost:27017',
+        dbName: 'test',
+      },
+      () => {
+        l.info('DB connection successfull');
+      },
+      () => {
+        l.error('Database connection error');
+      }
+    );
   }
 
   router(routes: (app: Application) => void): ExpressServer {
