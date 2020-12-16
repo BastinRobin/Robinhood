@@ -6,9 +6,9 @@ info:
 basePath: /v1
 tags:
   - name: Users
-    description: Simple example endpoints
+    description: Users API
   - name: Tenants
-    description: List of all Tenants
+    description: Tenants API
   - name: Auth
     description: Authentication API
   - name: Profile
@@ -159,6 +159,15 @@ definitions:
       name:
         type: string
         example: 'Resident'
+  AddressTypeBody:
+    type: object
+    title: AddressType
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        example: 'Home'
 
 paths:
   /users:
@@ -408,6 +417,7 @@ paths:
           description: Delete the Profile with the specified id
         404:
           description: Profile not found
+  
   /profiletype:
     get:
       tags:
@@ -448,7 +458,7 @@ paths:
     put:
       tags:
         - ProfileType
-      summary: Update existing profile
+      summary: Update existing profile type
       parameters:
         - name: "id"
           in: "path"
@@ -478,3 +488,74 @@ paths:
           description: Delete the ProfileType with the specified id
         404:
           description: ProfileType not found
+  
+  /addresstype:
+    get:
+      tags:
+        - AddressType
+      description: Fetch all profile types
+      responses:
+        200:
+          description: Returns all profile types
+    post:
+      tags:
+        - AddressType
+      summary: Create a new profile type
+      parameters:
+        - name: body
+          in: body
+          description: Profile type object that needs to be added to the store
+          required: true
+          schema:
+            $ref: "#/definitions/AddressTypeBody"
+      responses:
+        200:
+          description: Created new profile type
+  /addresstype/{id}:
+    get:
+      tags:
+        - AddressType
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the AddressType to retrieve
+          type: string
+      responses:
+        201:
+          description: Return the AddressType with the specified id
+        404:
+          description: AddressType not found
+    put:
+      tags:
+        - AddressType
+      summary: Update existing profile type
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "id that need to be updated"
+          required: true
+          type: "integer"
+        - in: "body"
+          name: "body"
+          description: "Updated profile object"
+          required: true
+          schema:
+            $ref: "#/definitions/AddressTypeBody"
+      responses:
+        200:
+          description: Update profile type
+    delete:
+      tags:
+        - AddressType
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the AddressType to delete
+          type: string
+      responses:
+        200:
+          description: Delete the AddressType with the specified id
+        404:
+          description: AddressType not found

@@ -28,8 +28,8 @@ export default class ExpressServer {
     app.use(express.static(`${root}/public`));
     Connection.connect(
       {
-        url: 'mongodb://localhost:27017',
-        dbName: 'test',
+        url: `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}`,
+        dbName: process.env.DB_NAME,
       },
       () => {
         l.info('DB connection successfull');

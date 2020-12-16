@@ -36,9 +36,13 @@ export class ProfileService {
     }
   }
 
-  async create(body: unknown): Promise<unknown> {
+  async create(body: any): Promise<unknown> {
     L.info(`creating profile`);
     try {
+      body.profile_type = {
+        $ref: 'profiletype',
+        $id: new ObjectID(body.profile_type_id),
+      };
       const profile: unknown = await Connection.db
         .collection('profile')
         .insertOne(body);

@@ -1,7 +1,7 @@
-import { MongoClient, db } from 'mongodb';
+import { MongoClient, Db } from 'mongodb';
 
 class Connection {
-  db: db;
+  db: Db;
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   async connect(conn, onSuccess, onFailure) {

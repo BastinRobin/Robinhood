@@ -1,6 +1,8 @@
 const path = require('path');
 const fs = require('fs');
-const readline = require('readline');
+// const readline = require('readline');
+const inquirer = require('inquirer');
+const yaml = require('js-yaml');
 
 /**
  * Application Scaffolding Generator
@@ -14,11 +16,174 @@ const readline = require('readline');
  *      2. NoSQL
  */
 
+const property = {};
+const model = {};
+let service;
+let route;
+
+const servicePrompt = [
+  {
+    type: 'input',
+    name: 'service',
+    message: 'Enter service name',
+  },
+];
+
+const propertyPrompt = [
+  {
+    type: 'input',
+    name: 'property',
+    message: 'Enter the property name',
+  },
+];
+
+const routePrompt = [
+  {
+    type: 'input',
+    name: 'route',
+    message: 'Enter route path without prefix (/v1)',
+  },
+];
+
+const dataTypePrompt = {
+  type: 'list',
+  name: 'dataType',
+  message: 'Select data type required',
+  choices: [
+    'String',
+    'Integer',
+    'Boolean',
+    'Double',
+    'Arrays',
+    'Timestamp',
+    'Object',
+    'Date',
+    'Object ID',
+  ],
+};
+
+const loopPrompt = {
+  type: 'confirm',
+  name: 'loop',
+  message: 'Do you want to add more property (Hit enter for YES)?',
+  default: true,
+};
+
+const requiredPrompt = {
+  type: 'confirm',
+  name: 'required',
+  message: 'Required field (Hit enter for YES)?',
+  default: true,
+};
+
 const capitalizeFirstLetter = (string) => {
   return string.toLowerCase().charAt(0).toUpperCase() + string.slice(1);
 };
 
-const generate_service = (name) => {
+const convertToSlug = (text) => {
+  return text
+    .toLowerCase()
+    .replace(/ /g, '_')
+    .replace(/[^\w-]+/g, '');
+};
+
+function askRouteConfirmation(name) {
+  const question = {
+    type: 'confirm',
+    name: 'route',
+    message: `API route "/v1/${convertToSlug(name)}" (Hit enter for YES)?: `,
+    default: true,
+  };
+
+  inquirer.prompt(question).then((answer) => {
+    if (answer.route) {
+      route = convertToSlug(name);
+      askModelFieldName();
+    } else {
+      // Input new route
+      askRouteName();
+    }
+  });
+}
+
+function askRouteName() {
+  inquirer.prompt(routePrompt).then((answer) => {
+    if (answer.route) {
+      route = convertToSlug(answer.route);
+      askModelFieldName();
+    } else {
+      askRouteName();
+    }
+  });
+}
+
+function askServiceName() {
+  inquirer.prompt(servicePrompt).then((answer) => {
+    if (answer.service) {
+      service = capitalizeFirstLetter(answer.service);
+      askRouteConfirmation(answer.service);
+    }
+  });
+}
+
+function askModelFieldName() {
+  inquirer.prompt(propertyPrompt).then((answer) => {
+    if (answer.property) {
+      askModelFieldType(convertToSlug(answer.property));
+    } else {
+      askModelFieldName();
+    }
+  });
+}
+
+function askModelFieldType(key) {
+  inquirer.prompt(dataTypePrompt).then((answer) => {
+    if (answer.dataType) {
+      property[key] = { type: answer.dataType, require: '' };
+      askRequired(key, answer.dataType);
+    }
+  });
+}
+
+function repeatConfirmation() {
+  inquirer.prompt(loopPrompt).then((answer) => {
+    if (answer.loop) {
+      askModelFieldName();
+    } else {
+      generate_controller_dir(service);
+      create_project(convertToSlug(service), `/v1/${convertToSlug(service)}`);
+      createSchema();
+    }
+  });
+}
+
+function askRequired(key, value) {
+  inquirer.prompt(requiredPrompt).then((answer) => {
+    property[key] = { type: value, require: answer.required };
+    model[key] = value.toLowerCase();
+    repeatConfirmation();
+  });
+}
+
+function createSchema() {
+  // let obj = yaml.load(fs.readFileSync('test.yaml', { encoding: 'utf-8' }));
+
+  const schemaText = `import { model, Schema, Model, Document, Types, Query } from 'mongoose';
+
+  interface I${service} extends Document ${JSON.stringify(model, null, 4)}
+
+  const ${service}Schema: Schema = new Schema(
+    ${JSON.stringify(property, null, 4)}
+  );
+  
+  const ${service}: Model<I${service}> = model('${service}', ${service}Schema);
+  export default ${service};`;
+  const dir = `./server/api/models/${service.toLowerCase()}.ts`;
+  fs.writeFileSync(`${dir}`, schemaText);
+  console.log(`Generated ${service} Model in ${dir}`);
+}
+
+const generate_controller_dir = (name) => {
   const dir = `./server/api/controllers/${name.toLowerCase()}`;
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
@@ -28,7 +193,7 @@ const generate_service = (name) => {
   }
 };
 
-const rename_controller = (name) => {
+const rename_controller = async (name) => {
   const dir = `./server/api/controllers/${name.toLowerCase()}/controller.ts`;
   if (fs.existsSync(dir)) {
     const controllerName = `${capitalizeFirstLetter(name)}Service`;
@@ -39,27 +204,28 @@ const rename_controller = (name) => {
         .replace(/examples.service/g, controllerPath);
       fs.writeFile(dir, formatted, 'utf8', (err) => {
         if (err) return err;
-        console.log(`Generated Controller........!!!`);
       });
     });
   }
 };
 
-const replace_model = (name) => {
+const replace_service = async (name) => {
   const dir = `./server/api/services/${name.toLowerCase()}.service.ts`;
   if (fs.existsSync(dir)) {
     const serviceName = `${capitalizeFirstLetter(name)}`;
     fs.readFile(dir, 'utf8', (_err, data) => {
-      const formatted = data.replace(/Example/g, serviceName);
+      const formatted = data
+        .replace(/Example/g, serviceName)
+        .replace(/example/g, serviceName.toLowerCase())
+        .replace(/examples/g, serviceName.toLowerCase() + 's');
       fs.writeFile(dir, formatted, 'utf8', (err) => {
         if (err) return err;
-        console.log(`Generated Models..........!!!`);
       });
     });
   }
 };
 
-const replace_testcase = (name, route_url) => {
+const replace_testcase = async (name, route_url) => {
   const dir = `./test/${name.toLowerCase()}.controller.ts`;
   if (fs.existsSync(dir)) {
     const serviceName = `${capitalizeFirstLetter(name)}`;
@@ -70,7 +236,6 @@ const replace_testcase = (name, route_url) => {
         .replace(/\/v1\/users/g, route_url);
       fs.writeFile(dir, formatted, 'utf8', (err) => {
         if (err) return err;
-        console.log(`Generated Test..........!!!`);
       });
     });
   }
@@ -83,7 +248,7 @@ const replace_testcase = (name, route_url) => {
  *
  * @return  {[type]}        [return description]
  */
-const generate_controller = (name) => {
+const generate_controller = async (name) => {
   const dir = `./server/api/controllers/${name.toLowerCase()}`;
   fs.copyFile(
     './generator/src/controller.ts',
@@ -93,11 +258,15 @@ const generate_controller = (name) => {
     }
   );
   // rename_controller(name);
-  console.log(`Generated ${name.toLowerCase()} controller`);
-  console.log(path.join(dir, 'controller.ts'));
+  console.log(
+    `Generated ${name.toLowerCase()} Controller in ${path.join(
+      dir,
+      'controller.ts'
+    )}`
+  );
 };
 
-const generate_router = (name) => {
+const generate_router = async (name) => {
   const dir = `./server/api/controllers/${name.toLowerCase()}`;
   fs.copyFile(
     './generator/src/router.ts',
@@ -107,27 +276,26 @@ const generate_router = (name) => {
     }
   );
 
-  console.log(`Generated ${name.toLowerCase()} router`);
-  console.log(path.join(dir, 'router.ts'));
+  console.log(
+    `Generated ${name.toLowerCase()} Router in ${path.join(dir, 'router.ts')}`
+  );
 };
 
-const generate_model = (name) => {
+const generate_service = async (name) => {
   const dir = `./server/api/services/${name.toLowerCase()}.service.ts`;
   fs.copyFile('./generator/src/service.ts', dir, (err) => {
     if (err) throw err;
   });
-  console.log(`Generated ${name.toLowerCase()} model`);
-  console.log(dir);
+  console.log(`Generated ${name.toLowerCase()} Service in ${dir}`);
 };
 
-const generate_test = (name) => {
+const generate_test = async (name) => {
   const test_file = `./test/${name.toLowerCase()}.controller.ts`;
   fs.copyFile('./generator/src/test.ts', test_file, (err) => {
     if (err) throw err;
     replace_testcase(name, `/v1/${name.toLowerCase()}`);
   });
-  console.log(`Generated ${name.toLowerCase()} testcases`);
-  console.log(test_file);
+  console.log(`Generated ${name.toLowerCase()} Unit Test in ${test_file}`);
 };
 
 // const modify_main = async (name) => {
@@ -150,45 +318,48 @@ const create_project = async (name, route_url) => {
   await generate_controller(name);
   await rename_controller(name);
   await generate_router(name);
-  await generate_model(name);
-  await replace_model(name);
+  await generate_service(name);
   await generate_test(name);
+  setTimeout(async () => {
+    await replace_service(name);
+  }, 500);
   await replace_testcase(name, route_url);
 };
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
+askServiceName();
+// const rl = readline.createInterface({
+//   input: process.stdin,
+//   output: process.stdout,
+// });
 
-rl.question('Enter Service name: ', (name) => {
-  generate_service(name);
-  rl.question(
-    `API route "/v1/${name.toLowerCase()}" Y or N ?: `,
-    async (_path) => {
-      rl.question(`1.) HTTPS or 2.) WS: `, async (_layer) => {
-        if (_path == 'Y' || _path == 'y') {
-          await create_project(name, `/v1/${name.toLowerCase()}`);
-          setTimeout(() => {
-            rl.close();
-          }, 5000);
-        } else if (_path == 'N' || _path == 'n') {
-          rl.question(`Enter route path`, async (_new_path) => {
-            await create_project(name, _new_path);
-            setTimeout(() => {
-              rl.close();
-            }, 5000);
-          });
-        }
-        setTimeout(() => {
-          rl.close();
-        }, 5000);
-      });
-    }
-  );
-});
+// rl.question('Enter Service name: ', (name) => {
+//   generate_service(name);
+//   rl.question(
+//     `API route "/v1/${name.toLowerCase()}" Y or N ?: `,
+//     async (_path) => {
+//       rl.question(`1.) HTTPS or 2.) WS: `, async (_layer) => {
+//         if (_path == 'Y' || _path == 'y') {
+//           await create_project(name, `/v1/${name.toLowerCase()}`);
+//           setTimeout(() => {
+//             rl.close();
+//           }, 5000);
+//         } else if (_path == 'N' || _path == 'n') {
+//           rl.question(`Enter route path`, async (_new_path) => {
+//             await create_project(name, _new_path);
+//             setTimeout(() => {
+//               rl.close();
+//             }, 5000);
+//           });
+//         }
+//         setTimeout(() => {
+//           rl.close();
+//         }, 5000);
+//       });
+//     }
+//   );
+// });
 
-rl.on('close', () => {
-  console.log('Scaffolding generated successfully !!!');
-  process.exit(0);
-});
+// rl.on('close', () => {
+//   console.log('Scaffolding generated successfully !!!');
+//   process.exit(0);
+// });
