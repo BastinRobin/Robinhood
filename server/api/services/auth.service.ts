@@ -12,7 +12,8 @@ export class AuthService {
   async login(params: Auth): Promise<User> {
     L.info(`Authendating user with username ${params.user_name}`);
 
-    const userName = params.user_name.toString();
+    const userName = params.user_name;
+    const email = params.email;
     const password = params.password.toString();
     const encryptionKey = process.env.ENCRYPTION_KEY as string;
     const hash = crypto.createHmac('sha512', encryptionKey).update(password);
@@ -20,7 +21,29 @@ export class AuthService {
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const user: any = await DB.find('users', { user_name: userName });
+      let user: any = '';
+      if (userName) {
+        user = await DB.find('users', { user_name: userName });
+      }
+
+      if (email) {
+        user = await DB.findBy(
+          'users',
+          '#email = :v_email',
+          {
+            '#email': 'email',
+          },
+          {
+            ':v_email': email,
+          },
+          'email'
+        );
+        if (user && user.length > 0) {
+          user = user[0];
+        } else {
+          throw new Error('User not exist.');
+        }
+      }
       if (user instanceof Error) {
         throw new Error('Something went wrong');
       }

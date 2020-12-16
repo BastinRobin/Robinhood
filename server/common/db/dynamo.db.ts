@@ -98,11 +98,10 @@ export class DB {
       ExpressionAttributeNames: ExpressionAttributeNames,
       ExpressionAttributeValues: ExpressionAttributeValues,
     };
-    console.log('dbParams', dbParams);
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data: any = await AWSDDB.query(dbParams).promise();
-      return data.Item;
+      return data.Items;
     } catch (err) {
       console.log('Failure', err.message);
     }
