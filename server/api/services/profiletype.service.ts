@@ -1,12 +1,11 @@
-import Connection from './../connections/mondo.db';
+import { CreateQuery } from 'mongoose';
+import ProfileType, { IProfileType } from './../models/profiletype';
 import L from '../../common/logger';
-import { ObjectID } from 'mongodb';
-
 export class ProfileTypeService {
-  async findAll(): Promise<unknown[]> {
-    L.info('fetching all profiletypes');
+  async findAll(): Promise<IProfileType[]> {
+    L.info('fetching all addresstypes');
     try {
-      return await Connection.db.collection('profiletype').find().toArray();
+      return await ProfileType.find();
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -15,12 +14,10 @@ export class ProfileTypeService {
     }
   }
 
-  async findById(id: string): Promise<unknown> {
-    L.info(`fetching profiletype for id ${id}`);
+  async findById(id: string): Promise<IProfileType> {
+    L.info(`fetching addresstype for id ${id}`);
     try {
-      return await Connection.db.collection('profiletype').findOne({
-        _id: new ObjectID(id),
-      });
+      return await ProfileType.findById(id);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -29,10 +26,10 @@ export class ProfileTypeService {
     }
   }
 
-  async create(body: unknown): Promise<unknown> {
-    L.info(`creating profiletype`);
+  async create(body: CreateQuery<IProfileType>): Promise<IProfileType> {
+    L.info(`creating addresstype`);
     try {
-      return await Connection.db.collection('profiletype').insertOne(body);
+      return await ProfileType.create(body);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -41,12 +38,13 @@ export class ProfileTypeService {
     }
   }
 
-  async update(body: unknown, id: string): Promise<unknown> {
-    L.info(`updating profile for id ${id}`);
+  async update(
+    body: CreateQuery<IProfileType>,
+    id: string
+  ): Promise<IProfileType> {
+    L.info(`updating addresstype for id ${id}`);
     try {
-      return await Connection.db
-        .collection('profiletype')
-        .findOneAndUpdate({ _id: new ObjectID(id) }, { $set: body });
+      return await ProfileType.findByIdAndUpdate(id, body);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -55,12 +53,10 @@ export class ProfileTypeService {
     }
   }
 
-  async deleteById(id: string): Promise<unknown> {
-    L.info(`deleting profile for id ${id}`);
+  async deleteById(id: string): Promise<IProfileType> {
+    L.info(`deleting addresstype for id ${id}`);
     try {
-      return await Connection.db
-        .collection('profiletype')
-        .deleteOne({ _id: new ObjectID(id) });
+      return await ProfileType.findByIdAndDelete(id);
     } catch (error) {
       if (error) {
         L.error('Error ', error);

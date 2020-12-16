@@ -1,6 +1,5 @@
 import ProfileService from '../../services/profile.service';
 import { Request, Response } from 'express';
-
 export class Controller {
   /**
    * List all records

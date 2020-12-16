@@ -1,15 +1,11 @@
-import { MongoClient, Db } from 'mongodb';
-
+import mongoose from 'mongoose';
 class Connection {
-  db: Db;
-
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   async connect(conn, onSuccess, onFailure) {
     try {
-      const connection = await MongoClient.connect(conn.url, {
+      await mongoose.connect(conn.url, {
         useNewUrlParser: true,
       });
-      this.db = connection.db(conn.dbName);
       onSuccess();
     } catch (ex) {
       onFailure(ex);

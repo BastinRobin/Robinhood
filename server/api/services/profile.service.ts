@@ -1,16 +1,11 @@
-import Connection from './../connections/mondo.db';
+import { CreateQuery } from 'mongoose';
+import Profile, { IProfile } from './../models/profile';
 import L from '../../common/logger';
-import { ObjectID } from 'mongodb';
-
 export class ProfileService {
-  async findAll(): Promise<unknown[]> {
-    L.info('fetching all profiles');
+  async findAll(): Promise<IProfile[]> {
+    L.info('fetching all addresstypes');
     try {
-      const profiles: unknown[] = await Connection.db
-        .collection('profile')
-        .find()
-        .toArray();
-      return profiles;
+      return await Profile.find();
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -19,15 +14,10 @@ export class ProfileService {
     }
   }
 
-  async findById(id: string): Promise<unknown> {
-    L.info(`fetching profile for id ${id}`);
+  async findById(id: string): Promise<IProfile> {
+    L.info(`fetching addresstype for id ${id}`);
     try {
-      const profiles: unknown = await Connection.db
-        .collection('profile')
-        .findOne({
-          _id: new ObjectID(id),
-        });
-      return profiles;
+      return await Profile.findById(id);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -36,17 +26,10 @@ export class ProfileService {
     }
   }
 
-  async create(body: any): Promise<unknown> {
-    L.info(`creating profile`);
+  async create(body: CreateQuery<IProfile>): Promise<IProfile> {
+    L.info(`creating addresstype`);
     try {
-      body.profile_type = {
-        $ref: 'profiletype',
-        $id: new ObjectID(body.profile_type_id),
-      };
-      const profile: unknown = await Connection.db
-        .collection('profile')
-        .insertOne(body);
-      return profile;
+      return await Profile.create(body);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -55,13 +38,10 @@ export class ProfileService {
     }
   }
 
-  async update(body: unknown, id: string): Promise<unknown> {
-    L.info(`updating profile for id ${id}`);
+  async update(body: CreateQuery<IProfile>, id: string): Promise<IProfile> {
+    L.info(`updating addresstype for id ${id}`);
     try {
-      const profile: unknown = await Connection.db
-        .collection('profile')
-        .findOneAndUpdate({ _id: new ObjectID(id) }, { $set: body });
-      return profile;
+      return await Profile.findByIdAndUpdate(id, body);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -70,13 +50,10 @@ export class ProfileService {
     }
   }
 
-  async deleteById(id: string): Promise<unknown> {
-    L.info(`deleting profile for id ${id}`);
+  async deleteById(id: string): Promise<IProfile> {
+    L.info(`deleting addresstype for id ${id}`);
     try {
-      const profile: unknown = await Connection.db
-        .collection('profile')
-        .deleteOne({ _id: new ObjectID(id) });
-      return profile;
+      return await Profile.findByIdAndDelete(id);
     } catch (error) {
       if (error) {
         L.error('Error ', error);

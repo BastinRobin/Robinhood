@@ -168,16 +168,19 @@ function askRequired(key, value) {
 function createSchema() {
   // let obj = yaml.load(fs.readFileSync('test.yaml', { encoding: 'utf-8' }));
 
-  const schemaText = `import { model, Schema, Model, Document, Types, Query } from 'mongoose';
+  const schemaText = `import mongoose, { Schema, Document } from 'mongoose';
 
-  interface I${service} extends Document ${JSON.stringify(model, null, 4)}
+  export interface I${service} extends Document ${JSON.stringify(
+    model,
+    null,
+    4
+  )}
 
   const ${service}Schema: Schema = new Schema(
     ${JSON.stringify(property, null, 4)}
   );
   
-  const ${service}: Model<I${service}> = model('${service}', ${service}Schema);
-  export default ${service};`;
+  export default mongoose.model<I${service}>('${service}', ${service}Schema);`;
   const dir = `./server/api/models/${service.toLowerCase()}.ts`;
   fs.writeFileSync(`${dir}`, schemaText);
   console.log(`Generated ${service} Model in ${dir}`);
@@ -212,7 +215,7 @@ const rename_controller = async (name) => {
 const replace_service = async (name) => {
   const dir = `./server/api/services/${name.toLowerCase()}.service.ts`;
   if (fs.existsSync(dir)) {
-    const serviceName = `${capitalizeFirstLetter(name)}`;
+    const serviceName = service;
     fs.readFile(dir, 'utf8', (_err, data) => {
       const formatted = data
         .replace(/Example/g, serviceName)
@@ -316,11 +319,11 @@ const generate_test = async (name) => {
 
 const create_project = async (name, route_url) => {
   await generate_controller(name);
-  await rename_controller(name);
   await generate_router(name);
   await generate_service(name);
   await generate_test(name);
   setTimeout(async () => {
+    await rename_controller(name);
     await replace_service(name);
   }, 500);
   await replace_testcase(name, route_url);

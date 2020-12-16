@@ -99,7 +99,7 @@ definitions:
     properties:
       profile_type_id:
         type: string
-        example: 1
+        example: "5fd9ed0432b834509ccefe6f"
       user_id:
         type: integer
         example: 2
@@ -143,7 +143,7 @@ definitions:
         example: 'Single'
       date_of_birth:
         type: string
-        example: '17/01/1991'
+        example: '2020-12-16T11:18:18.000Z'
       is_enabled:
         type: boolean
         example: true
@@ -466,7 +466,7 @@ paths:
           in: "path"
           description: "id that need to be updated"
           required: true
-          type: "integer"
+          type: "string"
         - in: "body"
           name: "body"
           description: "Updated profile object"
@@ -537,7 +537,7 @@ paths:
           in: "path"
           description: "id that need to be updated"
           required: true
-          type: "integer"
+          type: "string"
         - in: "body"
           name: "body"
           description: "Updated profile object"

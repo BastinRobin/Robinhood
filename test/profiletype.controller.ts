@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import request from 'supertest';
 import Server from '../server';
 
-describe('ProfileType', () => {
+describe('Profiletype', () => {
   it('should get all examples', () =>
     request(Server)
       .get('/v1/profiletype')

@@ -1,15 +1,11 @@
-import Connection from './../connections/mondo.db';
+import { CreateQuery } from 'mongoose';
+import Example, { IExample } from './../models/example';
 import L from '../../common/logger';
-import { ObjectID } from 'mongodb';
 export class ExampleService {
-  async findAll(): Promise<unknown[]> {
-    L.info('fetching all examples');
+  async findAll(): Promise<IExample[]> {
+    L.info('fetching all addresstypes');
     try {
-      const examples: unknown[] = await Connection.db
-        .collection('example')
-        .find()
-        .toArray();
-      return examples;
+      return await Example.find();
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -18,15 +14,10 @@ export class ExampleService {
     }
   }
 
-  async findById(id: string): Promise<unknown> {
-    L.info(`fetching example for id ${id}`);
+  async findById(id: string): Promise<IExample> {
+    L.info(`fetching addresstype for id ${id}`);
     try {
-      const examples: unknown = await Connection.db
-        .collection('example')
-        .findOne({
-          _id: new ObjectID(id),
-        });
-      return examples;
+      return await Example.findById(id);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -35,13 +26,10 @@ export class ExampleService {
     }
   }
 
-  async create(body: any): Promise<unknown> {
-    L.info(`creating example`);
+  async create(body: CreateQuery<IExample>): Promise<IExample> {
+    L.info(`creating addresstype`);
     try {
-      const example: unknown = await Connection.db
-        .collection('example')
-        .insertOne(body);
-      return example;
+      return await Example.create(body);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -50,13 +38,10 @@ export class ExampleService {
     }
   }
 
-  async update(body: unknown, id: string): Promise<unknown> {
-    L.info(`updating example for id ${id}`);
+  async update(body: CreateQuery<IExample>, id: string): Promise<IExample> {
+    L.info(`updating addresstype for id ${id}`);
     try {
-      const example: unknown = await Connection.db
-        .collection('example')
-        .findOneAndUpdate({ _id: new ObjectID(id) }, { $set: body });
-      return example;
+      return await Example.findByIdAndUpdate(id, body);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -65,13 +50,10 @@ export class ExampleService {
     }
   }
 
-  async deleteById(id: string): Promise<unknown> {
-    L.info(`deleting example for id ${id}`);
+  async deleteById(id: string): Promise<IExample> {
+    L.info(`deleting addresstype for id ${id}`);
     try {
-      const example: unknown = await Connection.db
-        .collection('example')
-        .deleteOne({ _id: new ObjectID(id) });
-      return example;
+      return await Example.findByIdAndDelete(id);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -82,38 +64,3 @@ export class ExampleService {
 }
 
 export default new ExampleService();
-
-// let id = 0;
-// interface Example {
-//   id: number;
-//   name: string;
-// }
-
-// const examples: Example[] = [
-//   { id: id++, name: 'example 0' },
-//   { id: id++, name: 'example 1' },
-// ];
-
-// export class ExamplesService {
-//   all(): Promise<Example[]> {
-//     L.info(examples, 'fetch all examples');
-//     return Promise.resolve(examples);
-//   }
-
-//   byId(id: number): Promise<Example> {
-//     L.info(`fetch example with id ${id}`);
-//     return this.all().then((r) => r[id]);
-//   }
-
-//   create(name: string): Promise<Example> {
-//     L.info(`create example with name ${name}`);
-//     const example: Example = {
-//       id: id++,
-//       name,
-//     };
-//     examples.push(example);
-//     return Promise.resolve(example);
-//   }
-// }
-
-// export default new ExamplesService();

@@ -1,15 +1,11 @@
-import Connection from './../connections/mondo.db';
+import { CreateQuery } from 'mongoose';
+import AddressType, { IAddressType } from './../models/addresstype';
 import L from '../../common/logger';
-import { ObjectID } from 'mongodb';
 export class AddresstypeService {
-  async findAll(): Promise<unknown[]> {
+  async findAll(): Promise<IAddressType[]> {
     L.info('fetching all addresstypes');
     try {
-      const addresstypes: unknown[] = await Connection.db
-        .collection('addresstype')
-        .find()
-        .toArray();
-      return addresstypes;
+      return await AddressType.find();
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -18,15 +14,10 @@ export class AddresstypeService {
     }
   }
 
-  async findById(id: string): Promise<unknown> {
+  async findById(id: string): Promise<IAddressType> {
     L.info(`fetching addresstype for id ${id}`);
     try {
-      const addresstypes: unknown = await Connection.db
-        .collection('addresstype')
-        .findOne({
-          _id: new ObjectID(id),
-        });
-      return addresstypes;
+      return await AddressType.findById(id);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -35,13 +26,10 @@ export class AddresstypeService {
     }
   }
 
-  async create(body: any): Promise<unknown> {
+  async create(body: CreateQuery<IAddressType>): Promise<IAddressType> {
     L.info(`creating addresstype`);
     try {
-      const addresstype: unknown = await Connection.db
-        .collection('addresstype')
-        .insertOne(body);
-      return addresstype;
+      return await AddressType.create(body);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -50,13 +38,13 @@ export class AddresstypeService {
     }
   }
 
-  async update(body: unknown, id: string): Promise<unknown> {
+  async update(
+    body: CreateQuery<IAddressType>,
+    id: string
+  ): Promise<IAddressType> {
     L.info(`updating addresstype for id ${id}`);
     try {
-      const addresstype: unknown = await Connection.db
-        .collection('addresstype')
-        .findOneAndUpdate({ _id: new ObjectID(id) }, { $set: body });
-      return addresstype;
+      return await AddressType.findByIdAndUpdate(id, body);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -65,13 +53,10 @@ export class AddresstypeService {
     }
   }
 
-  async deleteById(id: string): Promise<unknown> {
+  async deleteById(id: string): Promise<IAddressType> {
     L.info(`deleting addresstype for id ${id}`);
     try {
-      const addresstype: unknown = await Connection.db
-        .collection('addresstype')
-        .deleteOne({ _id: new ObjectID(id) });
-      return addresstype;
+      return await AddressType.findByIdAndDelete(id);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -82,38 +67,3 @@ export class AddresstypeService {
 }
 
 export default new AddresstypeService();
-
-// let id = 0;
-// interface Addresstype {
-//   id: number;
-//   name: string;
-// }
-
-// const addresstypes: Addresstype[] = [
-//   { id: id++, name: 'addresstype 0' },
-//   { id: id++, name: 'addresstype 1' },
-// ];
-
-// export class AddresstypesService {
-//   all(): Promise<Addresstype[]> {
-//     L.info(addresstypes, 'fetch all addresstypes');
-//     return Promise.resolve(addresstypes);
-//   }
-
-//   byId(id: number): Promise<Addresstype> {
-//     L.info(`fetch addresstype with id ${id}`);
-//     return this.all().then((r) => r[id]);
-//   }
-
-//   create(name: string): Promise<Addresstype> {
-//     L.info(`create addresstype with name ${name}`);
-//     const addresstype: Addresstype = {
-//       id: id++,
-//       name,
-//     };
-//     addresstypes.push(addresstype);
-//     return Promise.resolve(addresstype);
-//   }
-// }
-
-// export default new AddresstypesService();
