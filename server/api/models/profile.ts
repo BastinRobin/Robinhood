@@ -84,6 +84,10 @@ const ProfileSchema: Schema = new Schema({
     type: 'Boolean',
     require: true,
   },
+  profile_type: {
+    ref: 'ProfileType',
+    type: mongoose.Schema.Types.ObjectId,
+  },
 });
 
 export default mongoose.model<IProfile>('Profile', ProfileSchema);

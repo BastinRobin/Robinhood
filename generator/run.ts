@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 // const readline = require('readline');
 const inquirer = require('inquirer');
-const yaml = require('js-yaml');
+const yaml = require('yamljs');
 
 /**
  * Application Scaffolding Generator
@@ -18,8 +18,7 @@ const yaml = require('js-yaml');
 
 const property = {};
 const model = {};
-let service;
-let route;
+let service, route, relationName, relationModel, schemaText;
 
 const servicePrompt = [
   {
@@ -34,6 +33,14 @@ const propertyPrompt = [
     type: 'input',
     name: 'property',
     message: 'Enter the property name',
+  },
+];
+
+const relationPrompt = [
+  {
+    type: 'input',
+    name: 'relation',
+    message: 'Enter the relation name',
   },
 ];
 
@@ -62,6 +69,13 @@ const dataTypePrompt = {
   ],
 };
 
+const relationModelPrompt = {
+  type: 'list',
+  name: 'model',
+  message: 'Select the model to link relation with this model',
+  choices: yaml.load('./server/common/models.yml'),
+};
+
 const loopPrompt = {
   type: 'confirm',
   name: 'loop',
@@ -87,6 +101,15 @@ const convertToSlug = (text) => {
     .replace(/[^\w-]+/g, '');
 };
 
+const titleCase = (str) => {
+  const splitStr = str.toLowerCase().split(' ');
+  for (let i = 0; i < splitStr.length; i++) {
+    splitStr[i] =
+      splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
+  }
+  return splitStr.join('');
+};
+
 function askRouteConfirmation(name) {
   const question = {
     type: 'confirm',
@@ -100,8 +123,55 @@ function askRouteConfirmation(name) {
       route = convertToSlug(name);
       askModelFieldName();
     } else {
-      // Input new route
       askRouteName();
+    }
+  });
+}
+
+function askRelationConfirmation() {
+  const question = {
+    type: 'confirm',
+    name: 'relation',
+    message: `Do you want to add relation (Hit enter for NO)?: `,
+    default: false,
+  };
+
+  inquirer.prompt(question).then((answer) => {
+    if (answer.relation) {
+      askRelationName();
+    } else {
+      generate_controller_dir(service);
+      create_project(convertToSlug(service), `/v1/${convertToSlug(service)}`);
+      createSchema();
+    }
+  });
+}
+
+function askRelationName() {
+  inquirer.prompt(relationPrompt).then((answer) => {
+    if (answer.relation) {
+      relationName = capitalizeFirstLetter(titleCase(answer.relation));
+      askRelationModelName(relationName);
+    } else {
+      askRelationName();
+    }
+  });
+}
+
+function askRelationModelName(relationName) {
+  inquirer.prompt(relationModelPrompt).then((answer) => {
+    if (answer.model) {
+      relationModel = answer.model;
+      // Append relation details to existing property object
+      property[relationName] = {
+        ref: relationModel,
+        type: 'mongoose.Schema.Types.ObjectId',
+      };
+      generate_controller_dir(service);
+      create_project(convertToSlug(service), `/v1/${convertToSlug(service)}`);
+      createSchema();
+    } else {
+      askRelationModelName(relationName);
     }
   });
 }
@@ -120,7 +190,7 @@ function askRouteName() {
 function askServiceName() {
   inquirer.prompt(servicePrompt).then((answer) => {
     if (answer.service) {
-      service = capitalizeFirstLetter(answer.service);
+      service = titleCase(answer.service);
       askRouteConfirmation(answer.service);
     }
   });
@@ -150,9 +220,10 @@ function repeatConfirmation() {
     if (answer.loop) {
       askModelFieldName();
     } else {
-      generate_controller_dir(service);
-      create_project(convertToSlug(service), `/v1/${convertToSlug(service)}`);
-      createSchema();
+      askRelationConfirmation();
+      // generate_controller_dir(service);
+      // create_project(convertToSlug(service), `/v1/${convertToSlug(service)}`);
+      // createSchema();
     }
   });
 }
@@ -168,7 +239,7 @@ function askRequired(key, value) {
 function createSchema() {
   // let obj = yaml.load(fs.readFileSync('test.yaml', { encoding: 'utf-8' }));
 
-  const schemaText = `import mongoose, { Schema, Document } from 'mongoose';
+  schemaText = `import mongoose, { Schema, Document } from 'mongoose';
 
   export interface I${service} extends Document ${JSON.stringify(
     model,
@@ -182,7 +253,8 @@ function createSchema() {
   
   export default mongoose.model<I${service}>('${service}', ${service}Schema);`;
   const dir = `./server/api/models/${service.toLowerCase()}.ts`;
-  fs.writeFileSync(`${dir}`, schemaText);
+  fs.writeFileSync(`${dir}`, schemaText); // Generate mongoose model and schema
+  fs.appendFileSync('./server/common/models.yml', `\n- ${service}`); // Add model name to model.yml file to manage relationship
   console.log(`Generated ${service} Model in ${dir}`);
 }
 
@@ -199,7 +271,7 @@ const generate_controller_dir = (name) => {
 const rename_controller = async (name) => {
   const dir = `./server/api/controllers/${name.toLowerCase()}/controller.ts`;
   if (fs.existsSync(dir)) {
-    const controllerName = `${capitalizeFirstLetter(name)}Service`;
+    const controllerName = `${titleCase(name)}Service`;
     const controllerPath = `${name.toLowerCase()}.service`;
     fs.readFile(dir, 'utf8', (_err, data) => {
       const formatted = data
@@ -231,7 +303,7 @@ const replace_service = async (name) => {
 const replace_testcase = async (name, route_url) => {
   const dir = `./test/${name.toLowerCase()}.controller.ts`;
   if (fs.existsSync(dir)) {
-    const serviceName = `${capitalizeFirstLetter(name)}`;
+    const serviceName = `${titleCase(name)}`;
     fs.readFile(dir, 'utf8', (_err, data) => {
       const formatted = data
         .replace(/Examples/g, serviceName)

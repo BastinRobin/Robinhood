@@ -85,7 +85,7 @@ definitions:
     type: object
     title: Profile
     required:
-      - profile_type_id
+      - profile_type
       - user_id
       - first_name
       - last_name
@@ -97,7 +97,7 @@ definitions:
       - date_of_birth
       - martial_status
     properties:
-      profile_type_id:
+      profile_type:
         type: string
         example: "5fd9ed0432b834509ccefe6f"
       user_id:

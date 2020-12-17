@@ -5,7 +5,7 @@ export class ProfileService {
   async findAll(): Promise<IProfile[]> {
     L.info('fetching all addresstypes');
     try {
-      return await Profile.find();
+      return await Profile.find().populate('profile_type');
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -17,7 +17,9 @@ export class ProfileService {
   async findById(id: string): Promise<IProfile> {
     L.info(`fetching addresstype for id ${id}`);
     try {
-      return await Profile.findById(id);
+      return await (await Profile.findById(id))
+        .populate('profile_type')
+        .execPopulate();
     } catch (error) {
       if (error) {
         L.error('Error ', error);
