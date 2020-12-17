@@ -1,36 +1,66 @@
+import { CreateQuery } from 'mongoose';
+import Example, { IExample } from './../models/example';
 import L from '../../common/logger';
+export class ExampleService {
+  async findAll(): Promise<IExample[]> {
+    L.info('fetching all addresstypes');
+    try {
+      return await Example.find();
+    } catch (error) {
+      if (error) {
+        L.error('Error ', error);
+        return error.message;
+      }
+    }
+  }
 
-let id = 0;
-interface Example {
-  id: number;
-  name: string;
+  async findById(id: string): Promise<IExample> {
+    L.info(`fetching addresstype for id ${id}`);
+    try {
+      return await Example.findById(id);
+    } catch (error) {
+      if (error) {
+        L.error('Error ', error);
+        return error.message;
+      }
+    }
+  }
+
+  async create(body: CreateQuery<IExample>): Promise<IExample> {
+    L.info(`creating addresstype`);
+    try {
+      return await Example.create(body);
+    } catch (error) {
+      if (error) {
+        L.error('Error ', error);
+        return error.message;
+      }
+    }
+  }
+
+  async update(body: CreateQuery<IExample>, id: string): Promise<IExample> {
+    L.info(`updating addresstype for id ${id}`);
+    try {
+      return await Example.findByIdAndUpdate(id, body);
+    } catch (error) {
+      if (error) {
+        L.error('Error ', error);
+        return error.message;
+      }
+    }
+  }
+
+  async deleteById(id: string): Promise<IExample> {
+    L.info(`deleting addresstype for id ${id}`);
+    try {
+      return await Example.findByIdAndDelete(id);
+    } catch (error) {
+      if (error) {
+        L.error('Error ', error);
+        return error.message;
+      }
+    }
+  }
 }
 
-const examples: Example[] = [
-  { id: id++, name: 'example 0' },
-  { id: id++, name: 'example 1' },
-];
-
-export class ExamplesService {
-  all(): Promise<Example[]> {
-    L.info(examples, 'fetch all examples');
-    return Promise.resolve(examples);
-  }
-
-  byId(id: number): Promise<Example> {
-    L.info(`fetch example with id ${id}`);
-    return this.all().then((r) => r[id]);
-  }
-
-  create(name: string): Promise<Example> {
-    L.info(`create example with name ${name}`);
-    const example: Example = {
-      id: id++,
-      name,
-    };
-    examples.push(example);
-    return Promise.resolve(example);
-  }
-}
-
-export default new ExamplesService();
+export default new ExampleService();

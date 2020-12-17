@@ -1,7 +1,5 @@
 import ExamplesService from '../../services/examples.service';
 import { Request, Response } from 'express';
-import fetch from 'node-fetch';
-
 export class Controller {
   /**
    * List all records
@@ -12,7 +10,7 @@ export class Controller {
    * @return  {void}           [return description]
    */
   index(req: Request, res: Response): void {
-    ExamplesService.all().then((r) => res.json(r));
+    ExamplesService.findAll().then((r) => res.json(r));
   }
 
   /**
@@ -24,11 +22,8 @@ export class Controller {
    * @return  {void}           [return description]
    */
   show(req: Request, res: Response): void {
-    const id = Number.parseInt(req.params['id']);
-    ExamplesService.byId(id).then((r) => {
-      if (r) res.json(r);
-      else res.status(404).end();
-    });
+    const id = req.params['id'];
+    ExamplesService.findById(id).then((r) => res.json(r));
   }
 
   /**
@@ -40,9 +35,8 @@ export class Controller {
    * @return  {void}           [return description]
    */
   store(req: Request, res: Response): void {
-    ExamplesService.create(req.body.name).then((r) =>
-      res.status(201).location(`/api/v1/examples/${r.id}`).json(r)
-    );
+    const body = req.body;
+    ExamplesService.create(body).then((r) => res.json(r));
   }
 
   /**
@@ -54,7 +48,9 @@ export class Controller {
    * @return  {void}           [return description]
    */
   update(req: Request, res: Response): void {
-    res.json();
+    const body = req.body;
+    const id = req.params['id'];
+    ExamplesService.update(body, id).then((r) => res.json(r));
   }
 
   /**
@@ -66,7 +62,8 @@ export class Controller {
    * @return  {void}           [return description]
    */
   delete(req: Request, res: Response): void {
-    res.json();
+    const id = req.params['id'];
+    ExamplesService.deleteById(id).then((r) => res.json(r));
   }
 }
 

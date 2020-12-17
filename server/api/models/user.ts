@@ -12,7 +12,8 @@ export interface User {
 }
 
 export interface Auth {
-  user_name: string;
+  user_name?: string;
+  email?: string;
   password: string;
 }
 

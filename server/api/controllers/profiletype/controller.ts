@@ -1,6 +1,5 @@
-import ProfileTypeService from '../../services/profiletype.service';
+import ProfiletypeService from '../../services/profiletype.service';
 import { Request, Response } from 'express';
-
 export class Controller {
   /**
    * List all records
@@ -11,7 +10,7 @@ export class Controller {
    * @return  {void}           [return description]
    */
   index(req: Request, res: Response): void {
-    ProfileTypeService.findAll().then((r) => res.json(r));
+    ProfiletypeService.findAll().then((r) => res.json(r));
   }
 
   /**
@@ -24,7 +23,7 @@ export class Controller {
    */
   show(req: Request, res: Response): void {
     const id = req.params['id'];
-    ProfileTypeService.findById(id).then((r) => res.json(r));
+    ProfiletypeService.findById(id).then((r) => res.json(r));
   }
 
   /**
@@ -37,7 +36,7 @@ export class Controller {
    */
   store(req: Request, res: Response): void {
     const body = req.body;
-    ProfileTypeService.create(body).then((r) => res.json(r));
+    ProfiletypeService.create(body).then((r) => res.json(r));
   }
 
   /**
@@ -51,7 +50,7 @@ export class Controller {
   update(req: Request, res: Response): void {
     const body = req.body;
     const id = req.params['id'];
-    ProfileTypeService.update(body, id).then((r) => res.json(r));
+    ProfiletypeService.update(body, id).then((r) => res.json(r));
   }
 
   /**
@@ -64,7 +63,7 @@ export class Controller {
    */
   delete(req: Request, res: Response): void {
     const id = req.params['id'];
-    ProfileTypeService.deleteById(id).then((r) => res.json(r));
+    ProfiletypeService.deleteById(id).then((r) => res.json(r));
   }
 }
 

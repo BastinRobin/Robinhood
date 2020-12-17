@@ -1,71 +1,89 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ObjectID,
-  ObjectIdColumn,
-  BaseEntity,
-} from 'typeorm';
-@Entity()
-export class Profile extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-  // @ObjectIdColumn()
-  // id: ObjectID;
+import mongoose, { Schema, Document } from 'mongoose';
 
-  @Column()
-  user_id: number;
-
-  @Column()
-  profile_type_id: number;
-
-  @Column()
-  title: string;
-
-  @Column()
-  first_name: string;
-
-  @Column()
-  last_name: string;
-
-  @Column()
-  nick_name: string;
-
-  @Column()
-  code: string;
-
-  @Column()
-  image: string;
-
-  @Column()
-  email: string;
-
-  @Column()
-  mobile_no: string;
-
-  @Column()
-  phone1: string;
-
-  @Column()
-  phone2: string;
-
-  @Column()
-  gender: string;
-
-  @Column()
-  date_of_birth: string;
-
-  @Column()
-  religion: string;
-
-  @Column()
-  martial_status: string;
-
-  @Column()
-  is_enabled: boolean;
-
-  @Column()
-  is_deleted: boolean;
+export interface IProfile extends Document {
+  title: 'string';
+  first_name: 'string';
+  last_name: 'string';
+  image: 'string';
+  nick_name: 'string';
+  code: 'string';
+  email: 'string';
+  mobile_no: 'string';
+  phone1: 'string';
+  phone2: 'string';
+  gender: 'string';
+  date_of_birth: 'date';
+  religion: 'string';
+  martial_status: 'boolean';
+  is_enabled: 'boolean';
+  is_deleted: 'boolean';
 }
 
-export default Profile;
+const ProfileSchema: Schema = new Schema({
+  title: {
+    type: 'String',
+    require: true,
+  },
+  first_name: {
+    type: 'String',
+    require: true,
+  },
+  last_name: {
+    type: 'String',
+    require: true,
+  },
+  image: {
+    type: 'String',
+    require: false,
+  },
+  nick_name: {
+    type: 'String',
+    require: false,
+  },
+  code: {
+    type: 'String',
+    require: false,
+  },
+  email: {
+    type: 'String',
+    require: true,
+  },
+  mobile_no: {
+    type: 'String',
+    require: true,
+  },
+  phone1: {
+    type: 'String',
+    require: false,
+  },
+  phone2: {
+    type: 'String',
+    require: false,
+  },
+  gender: {
+    type: 'String',
+    require: true,
+  },
+  date_of_birth: {
+    type: 'Date',
+    require: true,
+  },
+  religion: {
+    type: 'String',
+    require: false,
+  },
+  martial_status: {
+    type: 'String',
+    require: false,
+  },
+  is_enabled: {
+    type: 'Boolean',
+    require: true,
+  },
+  is_deleted: {
+    type: 'Boolean',
+    require: true,
+  },
+});
+
+export default mongoose.model<IProfile>('Profile', ProfileSchema);

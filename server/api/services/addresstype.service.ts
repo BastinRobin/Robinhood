@@ -1,11 +1,11 @@
 import { CreateQuery } from 'mongoose';
-import ProfileType, { IProfileType } from './../models/profiletype';
+import AddressType, { IAddressType } from './../models/addresstype';
 import L from '../../common/logger';
-export class ProfileTypeService {
-  async findAll(): Promise<IProfileType[]> {
+export class AddresstypeService {
+  async findAll(): Promise<IAddressType[]> {
     L.info('fetching all addresstypes');
     try {
-      return await ProfileType.find();
+      return await AddressType.find();
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -14,10 +14,10 @@ export class ProfileTypeService {
     }
   }
 
-  async findById(id: string): Promise<IProfileType> {
+  async findById(id: string): Promise<IAddressType> {
     L.info(`fetching addresstype for id ${id}`);
     try {
-      return await ProfileType.findById(id);
+      return await AddressType.findById(id);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -26,10 +26,10 @@ export class ProfileTypeService {
     }
   }
 
-  async create(body: CreateQuery<IProfileType>): Promise<IProfileType> {
+  async create(body: CreateQuery<IAddressType>): Promise<IAddressType> {
     L.info(`creating addresstype`);
     try {
-      return await ProfileType.create(body);
+      return await AddressType.create(body);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -39,12 +39,12 @@ export class ProfileTypeService {
   }
 
   async update(
-    body: CreateQuery<IProfileType>,
+    body: CreateQuery<IAddressType>,
     id: string
-  ): Promise<IProfileType> {
+  ): Promise<IAddressType> {
     L.info(`updating addresstype for id ${id}`);
     try {
-      return await ProfileType.findByIdAndUpdate(id, body);
+      return await AddressType.findByIdAndUpdate(id, body);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -53,10 +53,10 @@ export class ProfileTypeService {
     }
   }
 
-  async deleteById(id: string): Promise<IProfileType> {
+  async deleteById(id: string): Promise<IAddressType> {
     L.info(`deleting addresstype for id ${id}`);
     try {
-      return await ProfileType.findByIdAndDelete(id);
+      return await AddressType.findByIdAndDelete(id);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -66,4 +66,4 @@ export class ProfileTypeService {
   }
 }
 
-export default new ProfileTypeService();
+export default new AddresstypeService();
