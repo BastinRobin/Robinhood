@@ -20,6 +20,11 @@ consumes:
   - application/json
 produces:
   - application/json
+securityDefinitions:
+  ApiKeyAuth:
+    type: apiKey
+    in: header
+    name: token
 
 definitions:
   UserBody:
@@ -351,6 +356,8 @@ paths:
   
   /profile:
     get:
+      security:
+        - ApiKeyAuth: []
       tags:
         - Profile
       description: Fetch all profiles
