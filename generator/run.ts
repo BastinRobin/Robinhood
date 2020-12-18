@@ -20,7 +20,7 @@ const property = {};
 const model = {};
 const generatorDir = './generator/src/';
 const apiDir = './server/api/';
-let service, route, relationName, relationModel, schemaText;
+let service, route, relationName, relationModel, schemaText, secureAPI;
 
 const servicePrompt = [
   {
@@ -85,6 +85,13 @@ const loopPrompt = {
   default: true,
 };
 
+const securityPrompt = {
+  type: 'confirm',
+  name: 'security',
+  message: 'Do you want to secure the API using API token (Hit enter for YES)?',
+  default: true,
+};
+
 const requiredPrompt = {
   type: 'confirm',
   name: 'required',
@@ -123,10 +130,21 @@ const askRouteConfirmation = (name) => {
   inquirer.prompt(question).then((answer) => {
     if (answer.route) {
       route = convertToSlug(name);
-      askModelFieldName();
+      askAPISecurityConfirmation();
     } else {
       askRouteName();
     }
+  });
+};
+
+const askAPISecurityConfirmation = () => {
+  inquirer.prompt(securityPrompt).then((answer) => {
+    if (answer.security) {
+      secureAPI = true;
+    } else {
+      secureAPI = false;
+    }
+    askModelFieldName();
   });
 };
 
@@ -338,15 +356,24 @@ const generate_controller = async (name) => {
 };
 
 const generate_router = async (name) => {
+  let routeText = `import express from 'express';\nimport controller from './controller';${
+    secureAPI
+      ? "\nimport tokenVerify from './../../middlewares/token.verify';"
+      : ''
+  }\nexport default express\n\t.Router()\n\t.get('/', ${
+    secureAPI ? 'tokenVerify,' : ''
+  } controller.index)\n\t.get('/:id', ${
+    secureAPI ? 'tokenVerify,' : ''
+  } controller.show)\n\t.post('/', ${
+    secureAPI ? 'tokenVerify,' : ''
+  } controller.store)\n\t.put('/:id', ${
+    secureAPI ? 'tokenVerify,' : ''
+  } controller.update)\n\t.delete('/:id', ${
+    secureAPI ? 'tokenVerify,' : ''
+  } controller.delete);\n`;
+  routeText = routeText.replace(/ +(?= )/g, '');
   const dir = `${apiDir}controllers/${name.toLowerCase()}`;
-  fs.copyFile(
-    `${generatorDir}router.ts`,
-    path.join(dir, 'router.ts'),
-    (err) => {
-      if (err) throw err;
-    }
-  );
-
+  fs.writeFileSync(`${dir}/router.ts`, routeText);
   console.log(
     `Generated ${name.toLowerCase()} Router in ${path.join(dir, 'router.ts')}`
   );
