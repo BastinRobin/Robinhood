@@ -1,8 +1,8 @@
-import * as path from 'path';
-import * as fs from 'fs';
-import * as yaml from 'yamljs';
-import * as inquirer from 'inquirer';
-import { QuestionCollection } from 'inquirer';
+const path = require('path');
+const fs = require('fs');
+// const readline = require('readline');
+const inquirer = require('inquirer');
+const yaml = require('yamljs');
 
 /**
  * Application Scaffolding Generator
@@ -22,7 +22,7 @@ const generatorDir = './generator/src/';
 const apiDir = './server/api/';
 let service, route, relationName, relationModel, schemaText;
 
-const servicePrompt: QuestionCollection = [
+const servicePrompt = [
   {
     type: 'input',
     name: 'service',
@@ -30,7 +30,7 @@ const servicePrompt: QuestionCollection = [
   },
 ];
 
-const propertyPrompt: QuestionCollection = [
+const propertyPrompt = [
   {
     type: 'input',
     name: 'property',
@@ -38,7 +38,7 @@ const propertyPrompt: QuestionCollection = [
   },
 ];
 
-const relationPrompt: QuestionCollection = [
+const relationPrompt = [
   {
     type: 'input',
     name: 'relation',
@@ -46,7 +46,7 @@ const relationPrompt: QuestionCollection = [
   },
 ];
 
-const routePrompt: QuestionCollection = [
+const routePrompt = [
   {
     type: 'input',
     name: 'route',
@@ -54,7 +54,7 @@ const routePrompt: QuestionCollection = [
   },
 ];
 
-const dataTypePrompt: QuestionCollection = {
+const dataTypePrompt = {
   type: 'list',
   name: 'dataType',
   message: 'Select data type required',
@@ -71,21 +71,21 @@ const dataTypePrompt: QuestionCollection = {
   ],
 };
 
-const relationModelPrompt: QuestionCollection = {
+const relationModelPrompt = {
   type: 'list',
   name: 'model',
   message: 'Select the model to link relation with this model',
   choices: yaml.load('./server/common/models.yml'),
 };
 
-const loopPrompt: QuestionCollection = {
+const loopPrompt = {
   type: 'confirm',
   name: 'loop',
   message: 'Do you want to add more property (Hit enter for YES)?',
   default: true,
 };
 
-const requiredPrompt: QuestionCollection = {
+const requiredPrompt = {
   type: 'confirm',
   name: 'required',
   message: 'Required field (Hit enter for YES)?',
@@ -113,7 +113,7 @@ const titleCase = (str) => {
 };
 
 const askRouteConfirmation = (name) => {
-  const question: QuestionCollection = {
+  const question = {
     type: 'confirm',
     name: 'route',
     message: `API route "/v1/${convertToSlug(name)}" (Hit enter for YES)?: `,
@@ -130,11 +130,13 @@ const askRouteConfirmation = (name) => {
   });
 };
 
-const askRelationConfirmation = () => {
-  const question: QuestionCollection = {
+const askRelationConfirmation = (more = false) => {
+  const question = {
     type: 'confirm',
     name: 'relation',
-    message: `Do you want to add relation (Hit enter for NO)?: `,
+    message: `Do you want to add ${
+      more ? 'more' : ''
+    } relation (Hit enter for NO)?: `,
     default: false,
   };
 
@@ -169,9 +171,7 @@ const askRelationModelName = (relationName) => {
         ref: relationModel,
         type: 'mongoose.Schema.Types.ObjectId',
       };
-      generate_controller_dir(service);
-      create_project(convertToSlug(service), `/v1/${convertToSlug(service)}`);
-      createSchema();
+      askRelationConfirmation(true);
     } else {
       askRelationModelName(relationName);
     }
