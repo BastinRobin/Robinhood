@@ -3,6 +3,7 @@ const fs = require('fs');
 // const readline = require('readline');
 const inquirer = require('inquirer');
 const yaml = require('yamljs');
+const mongoose = require('mongoose');
 
 /**
  * Application Scaffolding Generator
@@ -20,8 +21,11 @@ const property = {};
 const model = {};
 const generatorDir = './generator/src/';
 const apiDir = './server/api/';
+const swagger = yaml.load('./server/common/api.yml');
+const models = yaml.load('./server/common/models.yml');
 let service, route, relationName, relationModel, schemaText, secureAPI;
 
+// console.log('ddd', swagger);
 const servicePrompt = [
   {
     type: 'input',
@@ -75,7 +79,7 @@ const relationModelPrompt = {
   type: 'list',
   name: 'model',
   message: 'Select the model to link relation with this model',
-  choices: yaml.load('./server/common/models.yml'),
+  choices: models,
 };
 
 const loopPrompt = {
@@ -165,6 +169,7 @@ const askRelationConfirmation = (more = false) => {
       generate_controller_dir(service);
       create_project(convertToSlug(service), `/v1/${convertToSlug(service)}`);
       createSchema();
+      generateSwagger();
     }
   });
 };
@@ -243,6 +248,125 @@ const repeatConfirmation = () => {
       askRelationConfirmation();
     }
   });
+};
+
+const generateSwagger = () => {
+  const dKey = `${service}Body`;
+
+  // Tags
+  const stag = { name: '', description: '' };
+  stag.name = service;
+  stag.description = `${service} API`;
+  swagger.tags.push(stag);
+
+  // Definitions
+  const required = [];
+  const properties = {};
+  for (const key in property) {
+    if (property[key].require) {
+      required.push(key);
+    }
+    if (property[key].type) {
+      const prop = { type: property[key].type.toLowerCase() };
+      properties[key] = prop;
+    }
+  }
+  swagger.definitions[dKey] = {
+    type: 'object',
+    title: service,
+    required,
+    properties,
+  };
+
+  // Route
+  const security = secureAPI ? { ApiKeyAuth: [] } : '';
+  swagger.paths[`/${route}`] = {
+    get: {
+      security: [security],
+      tags: [service],
+      summary: `Fetch all ${route}`,
+      description: `Fetch all ${route}`,
+      responses: { '200': { description: `Returns all ${route}` } },
+    },
+    post: {
+      security: [security],
+      tags: [service],
+      description: `Create a new ${route}`,
+      summary: `Create a new ${route}`,
+      parameters: [
+        {
+          name: 'body',
+          in: 'body',
+          description: `${service} object that needs to be added to the store`,
+          required: true,
+          schema: { $ref: `#/definitions/${service}Body` },
+        },
+      ],
+      responses: { '200': { description: `Returns all ${route}` } },
+    },
+  };
+  swagger.paths[`/${route}/{id}`] = {
+    get: {
+      security: [security],
+      tags: [service],
+      summary: `Fetch specific ${route} from id`,
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          description: `The id of the ${service} to retrieve`,
+          type: 'string',
+        },
+      ],
+      responses: {
+        '201': { description: 'Return the ${service} with the specified id' },
+        '404': { description: '${service} not found' },
+      },
+    },
+    put: {
+      security: [security],
+      tags: [service],
+      summary: `Update existing ${route}`,
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          description: 'id that need to be updated',
+          required: true,
+          type: 'string',
+        },
+        {
+          in: 'body',
+          name: 'body',
+          description: `Updated ${route} object`,
+          required: true,
+          schema: { $ref: `#/definitions/${service}Body` },
+        },
+      ],
+      responses: { '200': { description: `Update ${route}` } },
+    },
+    delete: {
+      security: [security],
+      tags: [service],
+      summary: `Delete specific ${route} from id`,
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          description: `The id of the ${service} to delete`,
+          type: 'string',
+        },
+      ],
+      responses: {
+        '200': { description: `Delete the ${service} with the specified id` },
+        '404': { description: `${service} not found` },
+      },
+    },
+  };
+  const swaggerString = yaml.dump(swagger);
+  fs.writeFileSync('./server/common/api.yml', swaggerString, 'utf8');
 };
 
 const askRequired = (key, value) => {
@@ -356,6 +480,7 @@ const generate_controller = async (name) => {
 };
 
 const generate_router = async (name) => {
+  // Router child file
   let routeText = `import express from 'express';\nimport controller from './controller';${
     secureAPI
       ? "\nimport tokenVerify from './../../middlewares/token.verify';"
@@ -374,6 +499,18 @@ const generate_router = async (name) => {
   routeText = routeText.replace(/ +(?= )/g, '');
   const dir = `${apiDir}controllers/${name.toLowerCase()}`;
   fs.writeFileSync(`${dir}/router.ts`, routeText);
+
+  // Router parent file
+  let routes = fs.readFileSync(`${apiDir}../routes.ts`, 'utf8').split('export');
+  const routesImport =
+    routes[0] +
+    `import ${name.toLowerCase()}Router from './api/controllers/${name.toLowerCase()}/router';\n`;
+  let routesExport = routes[1].split('}');
+  routesExport = `export${
+    routesExport[0]
+  }  app.use('/v1/${name.toLowerCase()}/', ${name.toLowerCase()}Router);\n}\n`;
+  routes = routesImport + routesExport;
+  fs.writeFileSync(`${apiDir}../routes.ts`, routes);
   console.log(
     `Generated ${name.toLowerCase()} Router in ${path.join(dir, 'router.ts')}`
   );
