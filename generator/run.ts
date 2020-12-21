@@ -2,7 +2,8 @@ const path = require('path');
 const fs = require('fs');
 // const readline = require('readline');
 const inquirer = require('inquirer');
-const yaml = require('js-yaml');
+const yaml = require('yamljs');
+const mongoose = require('mongoose');
 
 /**
  * Application Scaffolding Generator
@@ -18,9 +19,13 @@ const yaml = require('js-yaml');
 
 const property = {};
 const model = {};
-let service;
-let route;
+const generatorDir = './generator/src/';
+const apiDir = './server/api/';
+const swagger = yaml.load('./server/common/api.yml');
+const models = yaml.load('./server/common/models.yml');
+let service, route, relationName, relationModel, schemaText, secureAPI;
 
+// console.log('ddd', swagger);
 const servicePrompt = [
   {
     type: 'input',
@@ -34,6 +39,14 @@ const propertyPrompt = [
     type: 'input',
     name: 'property',
     message: 'Enter the property name',
+  },
+];
+
+const relationPrompt = [
+  {
+    type: 'input',
+    name: 'relation',
+    message: 'Enter the relation name',
   },
 ];
 
@@ -62,10 +75,24 @@ const dataTypePrompt = {
   ],
 };
 
+const relationModelPrompt = {
+  type: 'list',
+  name: 'model',
+  message: 'Select the model to link relation with this model',
+  choices: models,
+};
+
 const loopPrompt = {
   type: 'confirm',
   name: 'loop',
   message: 'Do you want to add more property (Hit enter for YES)?',
+  default: true,
+};
+
+const securityPrompt = {
+  type: 'confirm',
+  name: 'security',
+  message: 'Do you want to secure the API using API token (Hit enter for YES)?',
   default: true,
 };
 
@@ -87,7 +114,16 @@ const convertToSlug = (text) => {
     .replace(/[^\w-]+/g, '');
 };
 
-function askRouteConfirmation(name) {
+const titleCase = (str) => {
+  const splitStr = str.toLowerCase().split(' ');
+  for (let i = 0; i < splitStr.length; i++) {
+    splitStr[i] =
+      splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
+  }
+  return splitStr.join('');
+};
+
+const askRouteConfirmation = (name) => {
   const question = {
     type: 'confirm',
     name: 'route',
@@ -98,15 +134,74 @@ function askRouteConfirmation(name) {
   inquirer.prompt(question).then((answer) => {
     if (answer.route) {
       route = convertToSlug(name);
-      askModelFieldName();
+      askAPISecurityConfirmation();
     } else {
-      // Input new route
       askRouteName();
     }
   });
-}
+};
 
-function askRouteName() {
+const askAPISecurityConfirmation = () => {
+  inquirer.prompt(securityPrompt).then((answer) => {
+    if (answer.security) {
+      secureAPI = true;
+    } else {
+      secureAPI = false;
+    }
+    askModelFieldName();
+  });
+};
+
+const askRelationConfirmation = (more = false) => {
+  const question = {
+    type: 'confirm',
+    name: 'relation',
+    message: `Do you want to add ${
+      more ? 'more' : ''
+    } relation (Hit enter for NO)?: `,
+    default: false,
+  };
+
+  inquirer.prompt(question).then((answer) => {
+    if (answer.relation) {
+      askRelationName();
+    } else {
+      generate_controller_dir(service);
+      create_project(convertToSlug(service), `/v1/${convertToSlug(service)}`);
+      createSchema();
+      generateSwagger();
+    }
+  });
+};
+
+const askRelationName = () => {
+  inquirer.prompt(relationPrompt).then((answer) => {
+    if (answer.relation) {
+      relationName = capitalizeFirstLetter(titleCase(answer.relation));
+      askRelationModelName(relationName);
+    } else {
+      askRelationName();
+    }
+  });
+};
+
+const askRelationModelName = (relationName) => {
+  inquirer.prompt(relationModelPrompt).then((answer) => {
+    if (answer.model) {
+      relationModel = answer.model;
+      // Append relation details to existing property object
+      property[relationName] = {
+        ref: relationModel,
+        type: 'mongoose.Schema.Types.ObjectId',
+      };
+      askRelationConfirmation(true);
+    } else {
+      askRelationModelName(relationName);
+    }
+  });
+};
+
+const askRouteName = () => {
   inquirer.prompt(routePrompt).then((answer) => {
     if (answer.route) {
       route = convertToSlug(answer.route);
@@ -115,18 +210,18 @@ function askRouteName() {
       askRouteName();
     }
   });
-}
+};
 
-function askServiceName() {
+const askServiceName = () => {
   inquirer.prompt(servicePrompt).then((answer) => {
     if (answer.service) {
-      service = capitalizeFirstLetter(answer.service);
+      service = titleCase(answer.service);
       askRouteConfirmation(answer.service);
     }
   });
-}
+};
 
-function askModelFieldName() {
+const askModelFieldName = () => {
   inquirer.prompt(propertyPrompt).then((answer) => {
     if (answer.property) {
       askModelFieldType(convertToSlug(answer.property));
@@ -134,41 +229,156 @@ function askModelFieldName() {
       askModelFieldName();
     }
   });
-}
+};
 
-function askModelFieldType(key) {
+const askModelFieldType = (key) => {
   inquirer.prompt(dataTypePrompt).then((answer) => {
     if (answer.dataType) {
       property[key] = { type: answer.dataType, require: '' };
       askRequired(key, answer.dataType);
     }
   });
-}
+};
 
-function repeatConfirmation() {
+const repeatConfirmation = () => {
   inquirer.prompt(loopPrompt).then((answer) => {
     if (answer.loop) {
       askModelFieldName();
     } else {
-      generate_controller_dir(service);
-      create_project(convertToSlug(service), `/v1/${convertToSlug(service)}`);
-      createSchema();
+      askRelationConfirmation();
     }
   });
-}
+};
 
-function askRequired(key, value) {
+const generateSwagger = () => {
+  const dKey = `${service}Body`;
+
+  // Tags
+  const stag = { name: '', description: '' };
+  stag.name = service;
+  stag.description = `${service} API`;
+  swagger.tags.push(stag);
+
+  // Definitions
+  const required = [];
+  const properties = {};
+  for (const key in property) {
+    if (property[key].require) {
+      required.push(key);
+    }
+    if (property[key].type) {
+      const prop = { type: property[key].type.toLowerCase() };
+      properties[key] = prop;
+    }
+  }
+  swagger.definitions[dKey] = {
+    type: 'object',
+    title: service,
+    required,
+    properties,
+  };
+
+  // Route
+  const security = secureAPI ? { ApiKeyAuth: [] } : '';
+  swagger.paths[`/${route}`] = {
+    get: {
+      security: [security],
+      tags: [service],
+      summary: `Fetch all ${route}`,
+      description: `Fetch all ${route}`,
+      responses: { '200': { description: `Returns all ${route}` } },
+    },
+    post: {
+      security: [security],
+      tags: [service],
+      description: `Create a new ${route}`,
+      summary: `Create a new ${route}`,
+      parameters: [
+        {
+          name: 'body',
+          in: 'body',
+          description: `${service} object that needs to be added to the store`,
+          required: true,
+          schema: { $ref: `#/definitions/${service}Body` },
+        },
+      ],
+      responses: { '200': { description: `Returns all ${route}` } },
+    },
+  };
+  swagger.paths[`/${route}/{id}`] = {
+    get: {
+      security: [security],
+      tags: [service],
+      summary: `Fetch specific ${route} from id`,
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          description: `The id of the ${service} to retrieve`,
+          type: 'string',
+        },
+      ],
+      responses: {
+        '201': { description: 'Return the ${service} with the specified id' },
+        '404': { description: '${service} not found' },
+      },
+    },
+    put: {
+      security: [security],
+      tags: [service],
+      summary: `Update existing ${route}`,
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          description: 'id that need to be updated',
+          required: true,
+          type: 'string',
+        },
+        {
+          in: 'body',
+          name: 'body',
+          description: `Updated ${route} object`,
+          required: true,
+          schema: { $ref: `#/definitions/${service}Body` },
+        },
+      ],
+      responses: { '200': { description: `Update ${route}` } },
+    },
+    delete: {
+      security: [security],
+      tags: [service],
+      summary: `Delete specific ${route} from id`,
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          description: `The id of the ${service} to delete`,
+          type: 'string',
+        },
+      ],
+      responses: {
+        '200': { description: `Delete the ${service} with the specified id` },
+        '404': { description: `${service} not found` },
+      },
+    },
+  };
+  const swaggerString = yaml.dump(swagger);
+  fs.writeFileSync('./server/common/api.yml', swaggerString, 'utf8');
+};
+
+const askRequired = (key, value) => {
   inquirer.prompt(requiredPrompt).then((answer) => {
     property[key] = { type: value, require: answer.required };
     model[key] = value.toLowerCase();
     repeatConfirmation();
   });
-}
+};
 
-function createSchema() {
-  // let obj = yaml.load(fs.readFileSync('test.yaml', { encoding: 'utf-8' }));
-
-  const schemaText = `import mongoose, { Schema, Document } from 'mongoose';
+const createSchema = () => {
+  schemaText = `import mongoose, { Schema, Document } from 'mongoose';
 
   export interface I${service} extends Document ${JSON.stringify(
     model,
@@ -181,25 +391,27 @@ function createSchema() {
   );
   
   export default mongoose.model<I${service}>('${service}', ${service}Schema);`;
-  const dir = `./server/api/models/${service.toLowerCase()}.ts`;
-  fs.writeFileSync(`${dir}`, schemaText);
+
+  const dir = `${apiDir}models/${service.toLowerCase()}.ts`;
+
+  fs.writeFileSync(`${dir}`, schemaText); // Generate mongoose model and schema
+  fs.appendFileSync('./server/common/models.yml', `\n- ${service}`); // Add model name to model.yml file to manage relationship
   console.log(`Generated ${service} Model in ${dir}`);
-}
+};
 
 const generate_controller_dir = (name) => {
-  const dir = `./server/api/controllers/${name.toLowerCase()}`;
+  const dir = `${apiDir}controllers/${name.toLowerCase()}`;
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
-    // console.log(`Service generated at ${dir}`);
   } else {
     console.log(`Service ${dir} already exists!!`);
   }
 };
 
 const rename_controller = async (name) => {
-  const dir = `./server/api/controllers/${name.toLowerCase()}/controller.ts`;
+  const dir = `${apiDir}controllers/${name.toLowerCase()}/controller.ts`;
   if (fs.existsSync(dir)) {
-    const controllerName = `${capitalizeFirstLetter(name)}Service`;
+    const controllerName = `${titleCase(name)}Service`;
     const controllerPath = `${name.toLowerCase()}.service`;
     fs.readFile(dir, 'utf8', (_err, data) => {
       const formatted = data
@@ -213,14 +425,13 @@ const rename_controller = async (name) => {
 };
 
 const replace_service = async (name) => {
-  const dir = `./server/api/services/${name.toLowerCase()}.service.ts`;
+  const dir = `${apiDir}services/${name.toLowerCase()}.service.ts`;
   if (fs.existsSync(dir)) {
-    const serviceName = service;
     fs.readFile(dir, 'utf8', (_err, data) => {
       const formatted = data
-        .replace(/Example/g, serviceName)
-        .replace(/example/g, serviceName.toLowerCase())
-        .replace(/examples/g, serviceName.toLowerCase() + 's');
+        .replace(/Example/g, service)
+        .replace(/example/g, service.toLowerCase())
+        .replace(/examples/g, service.toLowerCase() + 's');
       fs.writeFile(dir, formatted, 'utf8', (err) => {
         if (err) return err;
       });
@@ -231,7 +442,7 @@ const replace_service = async (name) => {
 const replace_testcase = async (name, route_url) => {
   const dir = `./test/${name.toLowerCase()}.controller.ts`;
   if (fs.existsSync(dir)) {
-    const serviceName = `${capitalizeFirstLetter(name)}`;
+    const serviceName = `${titleCase(name)}`;
     fs.readFile(dir, 'utf8', (_err, data) => {
       const formatted = data
         .replace(/Examples/g, serviceName)
@@ -252,15 +463,14 @@ const replace_testcase = async (name, route_url) => {
  * @return  {[type]}        [return description]
  */
 const generate_controller = async (name) => {
-  const dir = `./server/api/controllers/${name.toLowerCase()}`;
+  const dir = `${apiDir}controllers/${name.toLowerCase()}`;
   fs.copyFile(
-    './generator/src/controller.ts',
+    `${generatorDir}controller.ts`,
     path.join(dir, 'controller.ts'),
-    function (err) {
+    (err) => {
       if (err) throw err;
     }
   );
-  // rename_controller(name);
   console.log(
     `Generated ${name.toLowerCase()} Controller in ${path.join(
       dir,
@@ -270,23 +480,45 @@ const generate_controller = async (name) => {
 };
 
 const generate_router = async (name) => {
-  const dir = `./server/api/controllers/${name.toLowerCase()}`;
-  fs.copyFile(
-    './generator/src/router.ts',
-    path.join(dir, 'router.ts'),
-    (err) => {
-      if (err) throw err;
-    }
-  );
+  // Router child file
+  let routeText = `import express from 'express';\nimport controller from './controller';${
+    secureAPI
+      ? "\nimport tokenVerify from './../../middlewares/token.verify';"
+      : ''
+  }\nexport default express\n\t.Router()\n\t.get('/', ${
+    secureAPI ? 'tokenVerify,' : ''
+  } controller.index)\n\t.get('/:id', ${
+    secureAPI ? 'tokenVerify,' : ''
+  } controller.show)\n\t.post('/', ${
+    secureAPI ? 'tokenVerify,' : ''
+  } controller.store)\n\t.put('/:id', ${
+    secureAPI ? 'tokenVerify,' : ''
+  } controller.update)\n\t.delete('/:id', ${
+    secureAPI ? 'tokenVerify,' : ''
+  } controller.delete);\n`;
+  routeText = routeText.replace(/ +(?= )/g, '');
+  const dir = `${apiDir}controllers/${name.toLowerCase()}`;
+  fs.writeFileSync(`${dir}/router.ts`, routeText);
 
+  // Router parent file
+  let routes = fs.readFileSync(`${apiDir}../routes.ts`, 'utf8').split('export');
+  const routesImport =
+    routes[0] +
+    `import ${name.toLowerCase()}Router from './api/controllers/${name.toLowerCase()}/router';\n`;
+  let routesExport = routes[1].split('}');
+  routesExport = `export${
+    routesExport[0]
+  }  app.use('/v1/${name.toLowerCase()}/', ${name.toLowerCase()}Router);\n}\n`;
+  routes = routesImport + routesExport;
+  fs.writeFileSync(`${apiDir}../routes.ts`, routes);
   console.log(
     `Generated ${name.toLowerCase()} Router in ${path.join(dir, 'router.ts')}`
   );
 };
 
 const generate_service = async (name) => {
-  const dir = `./server/api/services/${name.toLowerCase()}.service.ts`;
-  fs.copyFile('./generator/src/service.ts', dir, (err) => {
+  const dir = `${apiDir}services/${name.toLowerCase()}.service.ts`;
+  fs.copyFile(`${generatorDir}service.ts`, dir, (err) => {
     if (err) throw err;
   });
   console.log(`Generated ${name.toLowerCase()} Service in ${dir}`);
@@ -294,28 +526,12 @@ const generate_service = async (name) => {
 
 const generate_test = async (name) => {
   const test_file = `./test/${name.toLowerCase()}.controller.ts`;
-  fs.copyFile('./generator/src/test.ts', test_file, (err) => {
+  fs.copyFile(`${generatorDir}test.ts`, test_file, (err) => {
     if (err) throw err;
     replace_testcase(name, `/v1/${name.toLowerCase()}`);
   });
   console.log(`Generated ${name.toLowerCase()} Unit Test in ${test_file}`);
 };
-
-// const modify_main = async (name) => {
-//   const dir = `./server/routes.ts`;
-//   const serviceName = `${capitalizeFirstLetter(name)}`;
-//   if (fs.existsSync(dir)) {
-//     fs.readFile(dir, 'utf8', (_err, data) => {
-//       const formatted = data
-//         .replace(/Examples/g, serviceName)
-//         .replace('/example/g', name);
-//       fs.writeFile(dir, formatted, 'utf8', (err) => {
-//         if (err) return err;
-//         console.log(`Generated Test..........!!!`);
-//       });
-//     });
-//   }
-// };
 
 const create_project = async (name, route_url) => {
   await generate_controller(name);
@@ -330,39 +546,3 @@ const create_project = async (name, route_url) => {
 };
 
 askServiceName();
-// const rl = readline.createInterface({
-//   input: process.stdin,
-//   output: process.stdout,
-// });
-
-// rl.question('Enter Service name: ', (name) => {
-//   generate_service(name);
-//   rl.question(
-//     `API route "/v1/${name.toLowerCase()}" Y or N ?: `,
-//     async (_path) => {
-//       rl.question(`1.) HTTPS or 2.) WS: `, async (_layer) => {
-//         if (_path == 'Y' || _path == 'y') {
-//           await create_project(name, `/v1/${name.toLowerCase()}`);
-//           setTimeout(() => {
-//             rl.close();
-//           }, 5000);
-//         } else if (_path == 'N' || _path == 'n') {
-//           rl.question(`Enter route path`, async (_new_path) => {
-//             await create_project(name, _new_path);
-//             setTimeout(() => {
-//               rl.close();
-//             }, 5000);
-//           });
-//         }
-//         setTimeout(() => {
-//           rl.close();
-//         }, 5000);
-//       });
-//     }
-//   );
-// });
-
-// rl.on('close', () => {
-//   console.log('Scaffolding generated successfully !!!');
-//   process.exit(0);
-// });

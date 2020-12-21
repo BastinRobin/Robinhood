@@ -31,7 +31,8 @@
     "pino": "^6.7.0",
     "reflect-metadata": "^0.1.13",
     "swagger-express-middleware": "^4.0.2",
-    "typeorm": "^0.2.29"
+    "typeorm": "^0.2.29",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.13",

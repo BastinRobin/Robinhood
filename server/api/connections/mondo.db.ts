@@ -5,6 +5,7 @@ class Connection {
     try {
       await mongoose.connect(conn.url, {
         useNewUrlParser: true,
+        useUnifiedTopology: true,
       });
       onSuccess();
     } catch (ex) {
