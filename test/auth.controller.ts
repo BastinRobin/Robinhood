@@ -15,7 +15,7 @@ describe('Auth', () => {
       .then((r) => {
         expect(r.body)
           .to.be.an('object')
-          .that.has.property('token')
-          .that.has.property('auth');
+          .that.has.property('auth')
+          .equals(true);
       }));
 });
