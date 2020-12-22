@@ -32,7 +32,7 @@ describe('Users', () => {
           .equal('test');
       }));
 
-  it('should get an user by username', () =>
+  it('should get an user by user_name', () =>
     request(Server)
       .get('/v1/users/admin')
       .set({ token: process.env.UNIT_TESTING_AUTH_TOKEN })
@@ -40,7 +40,7 @@ describe('Users', () => {
       .then((r) => {
         expect(r.body)
           .to.be.an('object')
-          .that.has.property('username')
+          .that.has.property('user_name')
           .equal('admin');
       }));
 });
