@@ -56,9 +56,7 @@ export class AuthService {
         throw new Error('Invalid username or password');
       }
 
-      const token = jwt.sign(user, encryptionKey, {
-        expiresIn: '30m', // expires in 24 hours
-      });
+      const token = jwt.sign(user, encryptionKey, {});
 
       const userTenants = [];
       const userTenant: any = await DB.findBy(

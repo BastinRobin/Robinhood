@@ -267,7 +267,11 @@ const generateSwagger = () => {
       required.push(key);
     }
     if (property[key].type) {
-      const prop = { type: property[key].type.toLowerCase() };
+      const type =
+        property[key].type === 'mongoose.Schema.Types.ObjectId'
+          ? 'ObjectId'
+          : property[key].type.toLowerCase();
+      const prop = { type: type };
       properties[key] = prop;
     }
   }
@@ -446,8 +450,8 @@ const replace_testcase = async (name, route_url) => {
     fs.readFile(dir, 'utf8', (_err, data) => {
       const formatted = data
         .replace(/Examples/g, serviceName)
-        .replace('/example/g', name)
-        .replace(/\/v1\/users/g, route_url);
+        .replace(/\/v1\/example/g, route_url)
+        .replace(/example/g, name);
       fs.writeFile(dir, formatted, 'utf8', (err) => {
         if (err) return err;
       });
@@ -528,7 +532,7 @@ const generate_test = async (name) => {
   const test_file = `./test/${name.toLowerCase()}.controller.ts`;
   fs.copyFile(`${generatorDir}test.ts`, test_file, (err) => {
     if (err) throw err;
-    replace_testcase(name, `/v1/${name.toLowerCase()}`);
+    // replace_testcase(name, `/v1/${name.toLowerCase()}`);
   });
   console.log(`Generated ${name.toLowerCase()} Unit Test in ${test_file}`);
 };
@@ -541,8 +545,8 @@ const create_project = async (name, route_url) => {
   setTimeout(async () => {
     await rename_controller(name);
     await replace_service(name);
+    await replace_testcase(name, route_url);
   }, 500);
-  await replace_testcase(name, route_url);
 };
 
 askServiceName();

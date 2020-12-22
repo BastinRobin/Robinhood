@@ -1,21 +1,29 @@
+import './../server/common/env';
 import 'mocha';
 import { expect } from 'chai';
 import request from 'supertest';
 import Server from '../server';
 
-describe('Examples', () => {
-  it('should get all examples', () =>
+describe('Users', () => {
+  it('should get all users', () =>
     request(Server)
       .get('/v1/users')
+      .set({ token: process.env.UNIT_TESTING_AUTH_TOKEN })
       .expect('Content-Type', /json/)
       .then((r) => {
-        expect(r.body).to.be.an('array').of.length(2);
+        expect(r.body).to.be.an('array').of.length.to.not.equal(0);
       }));
 
-  it('should add a new example', () =>
+  it('should add a new user', () =>
     request(Server)
       .post('/v1/users')
-      .send({ name: 'test' })
+      .set({ token: process.env.UNIT_TESTING_AUTH_TOKEN })
+      .send({
+        user_name: 'test',
+        password: 'test',
+        gmail: 'test@test.com',
+        enabled: true,
+      })
       .expect('Content-Type', /json/)
       .then((r) => {
         expect(r.body)
@@ -24,14 +32,15 @@ describe('Examples', () => {
           .equal('test');
       }));
 
-  it('should get an example by id', () =>
+  it('should get an user by username', () =>
     request(Server)
-      .get('/v1/users/2')
+      .get('/v1/users/admin')
+      .set({ token: process.env.UNIT_TESTING_AUTH_TOKEN })
       .expect('Content-Type', /json/)
       .then((r) => {
         expect(r.body)
           .to.be.an('object')
-          .that.has.property('name')
-          .equal('test');
+          .that.has.property('username')
+          .equal('admin');
       }));
 });
