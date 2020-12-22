@@ -21,7 +21,7 @@ describe('Users', () => {
       .send({
         user_name: 'test',
         password: 'test',
-        gmail: 'test@test.com',
+        email: 'test@test.com',
         enabled: true,
       })
       .expect('Content-Type', /json/)
