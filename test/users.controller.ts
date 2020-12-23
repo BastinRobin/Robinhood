@@ -28,7 +28,7 @@ describe('Users', () => {
       .then((r) => {
         expect(r.body)
           .to.be.an('object')
-          .that.has.property('name')
+          .that.has.property('user_name')
           .equal('test');
       }));
 
