@@ -64,6 +64,7 @@ const dataTypePrompt = {
   message: 'Select data type required',
   choices: [
     'String',
+    'Number',
     'Integer',
     'Boolean',
     'Double',
@@ -71,7 +72,9 @@ const dataTypePrompt = {
     'Timestamp',
     'Object',
     'Date',
-    'Object ID',
+    'ObjectId',
+    'Mixed',
+    'Decimal128',
   ],
 };
 
@@ -105,6 +108,10 @@ const requiredPrompt = {
 
 const capitalizeFirstLetter = (string) => {
   return string.toLowerCase().charAt(0).toUpperCase() + string.slice(1);
+};
+
+const lowerCaseFirstLetter = (string) => {
+  return string.toLowerCase().charAt(0).toLowerCase() + string.slice(1);
 };
 
 const convertToSlug = (text) => {
@@ -177,7 +184,7 @@ const askRelationConfirmation = (more = false) => {
 const askRelationName = () => {
   inquirer.prompt(relationPrompt).then((answer) => {
     if (answer.relation) {
-      relationName = capitalizeFirstLetter(titleCase(answer.relation));
+      relationName = lowerCaseFirstLetter(titleCase(answer.relation));
       askRelationModelName(relationName);
     } else {
       askRelationName();
@@ -192,7 +199,7 @@ const askRelationModelName = (relationName) => {
       // Append relation details to existing property object
       property[relationName] = {
         ref: relationModel,
-        type: 'mongoose.Schema.Types.ObjectId',
+        type: 'ObjectId',
       };
       askRelationConfirmation(true);
     } else {
@@ -223,21 +230,26 @@ const askServiceName = () => {
 
 const askModelFieldName = () => {
   inquirer.prompt(propertyPrompt).then((answer) => {
-    if (answer.property) {
-      askModelFieldType(convertToSlug(answer.property));
-    } else {
-      askModelFieldName();
-    }
+    askModelFieldType(convertToSlug(answer.property));
+    // if (answer.property) {
+    //   askModelFieldType(convertToSlug(answer.property));
+    // } else {
+    //   askModelFieldName();
+    // }
   });
 };
 
 const askModelFieldType = (key) => {
-  inquirer.prompt(dataTypePrompt).then((answer) => {
-    if (answer.dataType) {
-      property[key] = { type: answer.dataType, require: '' };
-      askRequired(key, answer.dataType);
-    }
-  });
+  if (key) {
+    inquirer.prompt(dataTypePrompt).then((answer) => {
+      if (answer.dataType) {
+        property[key] = { type: answer.dataType, require: '' };
+        askRequired(key, answer.dataType);
+      }
+    });
+  } else {
+    repeatConfirmation();
+  }
 };
 
 const repeatConfirmation = () => {
@@ -268,8 +280,8 @@ const generateSwagger = () => {
     }
     if (property[key].type) {
       const type =
-        property[key].type === 'mongoose.Schema.Types.ObjectId'
-          ? 'ObjectId'
+        property[key].type === 'ObjectId'
+          ? 'string'
           : property[key].type.toLowerCase();
       const prop = { type: type };
       properties[key] = prop;
