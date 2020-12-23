@@ -4,7 +4,7 @@ import L from '../../common/logger';
 export class ProfiletypeService {
   async findAll(): Promise<IProfiletype[]> {
     try {
-      return await Profiletype.find().populate('Profile');
+      return await Profiletype.find();
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -35,7 +35,10 @@ export class ProfiletypeService {
     }
   }
 
-  async update(body: CreateQuery<IProfiletype>, id: string): Promise<IProfiletype> {
+  async update(
+    body: CreateQuery<IProfiletype>,
+    id: string
+  ): Promise<IProfiletype> {
     try {
       return await Profiletype.findByIdAndUpdate(id, body);
     } catch (error) {
