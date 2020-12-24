@@ -19,6 +19,17 @@ export class ProfileService {
     }
   }
 
+  async showByType(id: string): Promise<IProfile[]> {
+    try {
+      return await Profile.find({ profile_type: id }).populate('profile_type');
+    } catch (error) {
+      if (error) {
+        L.error('Error ', error);
+        return error.message;
+      }
+    }
+  }
+
   async findById(id: string): Promise<IProfile> {
     try {
       return await Profile.findById(id).populate('profile_type');
@@ -61,10 +72,26 @@ export class ProfileService {
         enabled: 1,
       };
 
+      // Create User
       const newUser: any = await DB.create('users', dbUserParams);
       if (newUser instanceof Error) {
         throw new Error('Error while creating user.');
       }
+
+      // const dbUserTenantParams = {
+      //   id: new Date().getTime(),
+      //   user_id: +dbUserParams.id,
+      //   tenant_id: tenant.id,
+      //   date_created: Date().toString(),
+      // };
+
+      // Create user tenant
+      // const userTenant = await DB.create('user_tenants', dbUserTenantParams);
+
+      // if (userTenant instanceof Error) {
+      //   await DB.delete('users', { user_name: dbUserParams.user_name });
+      //   throw new Error('Error while creating user tenant.');
+      // }
 
       // Create profile
       profile.user_id = dbUserParams.id;
@@ -120,10 +147,26 @@ export class ProfileService {
         enabled: 1,
       };
 
+      // Create user
       const newUser: any = await DB.create('users', dbUserParams);
       if (newUser instanceof Error) {
         throw new Error('Error while creating user.');
       }
+
+      // const dbUserTenantParams = {
+      //   id: new Date().getTime(),
+      //   user_id: +dbUserParams.id,
+      //   tenant_id: tenant.id,
+      //   date_created: Date().toString(),
+      // };
+
+      // Create user tenant
+      // const userTenant = await DB.create('user_tenants', dbUserTenantParams);
+
+      // if (userTenant instanceof Error) {
+      //   await DB.delete('users', { user_name: dbUserParams.user_name });
+      //   throw new Error('Error while creating user tenant.');
+      // }
 
       // Create profile
       profile.user_id = dbUserParams.id;

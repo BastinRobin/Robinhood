@@ -5,6 +5,7 @@ export default express
   .Router()
   .get('/', tokenVerify, controller.index)
   .get('/:id', tokenVerify, controller.show)
+  .get('/type/:id', tokenVerify, controller.showByType)
   .post('/', tokenVerify, controller.store)
   .post('/resident', tokenVerify, controller.createResident)
   .post('/carer', tokenVerify, controller.createCarer)

@@ -27,6 +27,19 @@ export class Controller {
   }
 
   /**
+   * Fetch all record using the given type :id
+   *
+   * @param   {Request}   req  [req description]
+   * @param   {Response}  res  [res description]
+   *
+   * @return  {void}           [return description]
+   */
+  showByType(req: Request, res: Response): void {
+    const id = req.params['id'];
+    ProfileService.showByType(id).then((r) => res.json(r));
+  }
+
+  /**
    * Create new record
    *
    * @param   {Request}   req  [req description]
