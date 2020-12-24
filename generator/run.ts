@@ -336,8 +336,8 @@ const generateSwagger = () => {
         },
       ],
       responses: {
-        '201': { description: 'Return the ${service} with the specified id' },
-        '404': { description: '${service} not found' },
+        '201': { description: `Return the ${service} with the specified id` },
+        '404': { description: `${service} not found` },
       },
     },
     put: {

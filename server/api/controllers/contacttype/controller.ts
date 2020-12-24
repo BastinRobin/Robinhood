@@ -1,4 +1,4 @@
-import ProfileService from '../../services/profile.service';
+import ContacttypeService from '../../services/contacttype.service';
 import { Request, Response } from 'express';
 export class Controller {
   /**
@@ -10,7 +10,7 @@ export class Controller {
    * @return  {void}           [return description]
    */
   index(req: Request, res: Response): void {
-    ProfileService.findAll().then((r) => res.json(r));
+    ContacttypeService.findAll().then((r) => res.json(r));
   }
 
   /**
@@ -23,7 +23,23 @@ export class Controller {
    */
   show(req: Request, res: Response): void {
     const id = req.params['id'];
-    ProfileService.findById(id).then((r) => res.json(r));
+    ContacttypeService.findById(id).then((r) => res.json(r));
+  }
+
+  /**
+   * Fetch record using the diven :page_type
+   *
+   * @param   {Request}   req  [req description]
+   * @param   {Response}  res  [res description]
+   *
+   * @return  {void}           [return description]
+   */
+  showAllByPageTypes(req: Request, res: Response): void {
+    const pageType = req.params['page_type'].toLowerCase();
+    const profileId = req.params['profile_id'];
+    ContacttypeService.showAllByPageTypes(pageType, profileId).then((r) =>
+      res.json(r)
+    );
   }
 
   /**
@@ -36,33 +52,7 @@ export class Controller {
    */
   store(req: Request, res: Response): void {
     const body = req.body;
-    ProfileService.create(body).then((r) => res.json(r));
-  }
-
-  /**
-   * Create new resident record
-   *
-   * @param   {Request}   req  [req description]
-   * @param   {Response}  res  [res description]
-   *
-   * @return  {void}           [return description]
-   */
-  createResident(req: Request, res: Response): void {
-    const body = req.body;
-    ProfileService.createResident(body).then((r) => res.json(r));
-  }
-
-  /**
-   * Create new carer record
-   *
-   * @param   {Request}   req  [req description]
-   * @param   {Response}  res  [res description]
-   *
-   * @return  {void}           [return description]
-   */
-  createCarer(req: Request, res: Response): void {
-    const body = req.body;
-    ProfileService.createCarer(body).then((r) => res.json(r));
+    ContacttypeService.create(body).then((r) => res.json(r));
   }
 
   /**
@@ -76,7 +66,7 @@ export class Controller {
   update(req: Request, res: Response): void {
     const body = req.body;
     const id = req.params['id'];
-    ProfileService.update(body, id).then((r) => res.json(r));
+    ContacttypeService.update(body, id).then((r) => res.json(r));
   }
 
   /**
@@ -89,7 +79,7 @@ export class Controller {
    */
   delete(req: Request, res: Response): void {
     const id = req.params['id'];
-    ProfileService.deleteById(id).then((r) => res.json(r));
+    ContacttypeService.deleteById(id).then((r) => res.json(r));
   }
 }
 

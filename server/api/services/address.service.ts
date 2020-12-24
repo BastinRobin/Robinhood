@@ -4,10 +4,7 @@ import L from '../../common/logger';
 export class AddressService {
   async findAll(): Promise<IAddress[]> {
     try {
-      return await Address.find()
-        .populate('addresstype')
-        .populate('country')
-        .populate('profile');
+      return await Address.find().populate('addresstype').populate('profile');
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -20,7 +17,6 @@ export class AddressService {
     try {
       return await Address.findById(id)
         .populate('addresstype')
-        .populate('country')
         .populate('profile');
     } catch (error) {
       if (error) {

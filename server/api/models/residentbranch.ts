@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IResidentbranch extends Document {
   is_enabled: 'boolean';
+  profile: 'string';
 }
 
 const ResidentbranchSchema: Schema = new Schema({

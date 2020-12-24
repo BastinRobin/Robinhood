@@ -7,6 +7,8 @@ export interface IAddress extends Document {
   postal_code: 'string';
   latitude: 'string';
   longitude: 'string';
+  country: 'string';
+  profile: 'string';
 }
 
 const AddressSchema: Schema = new Schema({
@@ -26,6 +28,10 @@ const AddressSchema: Schema = new Schema({
     type: 'String',
     require: true,
   },
+  country: {
+    type: 'String',
+    require: false,
+  },
   latitude: {
     type: 'String',
     require: false,
@@ -40,10 +46,6 @@ const AddressSchema: Schema = new Schema({
   },
   addresstype: {
     ref: 'Addresstype',
-    type: 'ObjectId',
-  },
-  country: {
-    ref: 'Country',
     type: 'ObjectId',
   },
 });

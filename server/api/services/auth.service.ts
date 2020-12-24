@@ -52,6 +52,10 @@ export class AuthService {
         throw new Error('User not exist.');
       }
 
+      if (!user.enabled) {
+        throw new Error('User disabled please contact administrator');
+      }
+
       if (user.password !== UserHashedPass) {
         throw new Error('Invalid username or password');
       }

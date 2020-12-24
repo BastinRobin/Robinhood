@@ -35,6 +35,8 @@ import residentdocumentRouter from './api/controllers/residentdocument/router';
 import profiledocumentRouter from './api/controllers/profiledocument/router';
 import permissionsRouter from './api/controllers/permissions/router';
 import profilepermissionRouter from './api/controllers/profilepermission/router';
+import contacttypeRouter from './api/controllers/contacttype/router';
+import contactRouter from './api/controllers/contact/router';
 export default function routes(app: Application): void {
   app.use('/v1/users', usersRouter);
   app.use('/v1/tenants/', tenantsRouter);
@@ -71,4 +73,6 @@ export default function routes(app: Application): void {
   app.use('/v1/profiledocument/', profiledocumentRouter);
   app.use('/v1/permissions/', permissionsRouter);
   app.use('/v1/profilepermission/', profilepermissionRouter);
+  app.use('/v1/contacttype/', contacttypeRouter);
+  app.use('/v1/contact/', contactRouter);
 }
