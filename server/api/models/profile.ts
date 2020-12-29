@@ -99,6 +99,10 @@ const ProfileSchema: Schema = new Schema({
     ref: 'Profiletype',
     type: 'ObjectId',
   },
+  job_type: {
+    ref: 'Jobtype',
+    type: 'ObjectId',
+  },
 });
 
 export default mongoose.model<IProfile>('Profile', ProfileSchema);

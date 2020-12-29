@@ -21,9 +21,9 @@ export class ProfileService {
 
   async showByType(id: string): Promise<IProfile[]> {
     try {
-      const profiles = await Profile.find({ profile_type: id }).populate(
-        'profile_type'
-      );
+      const profiles = await Profile.find({ profile_type: id })
+        .populate('profile_type')
+        .populate('job_type');
       for (const profile of profiles) {
         const address = await Address.find({ profile: profile._id });
         profile.address = address;
