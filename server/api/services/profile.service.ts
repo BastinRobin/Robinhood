@@ -21,7 +21,14 @@ export class ProfileService {
 
   async showByType(id: string): Promise<IProfile[]> {
     try {
-      return await Profile.find({ profile_type: id }).populate('profile_type');
+      const profiles = await Profile.find({ profile_type: id }).populate(
+        'profile_type'
+      );
+      for (const profile of profiles) {
+        const address = await Address.find({ profile: profile._id });
+        profile.address = address;
+      }
+      return profiles;
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -195,7 +202,7 @@ export class ProfileService {
 
   async update(body: CreateQuery<IProfile>, id: string): Promise<IProfile> {
     try {
-      return await Profile.findByIdAndUpdate(id, body);
+      return;
     } catch (error) {
       if (error) {
         L.error('Error ', error);

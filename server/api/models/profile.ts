@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+import { IAddress } from './address';
 export interface IProfile extends Document {
   user_id: 'string';
   title: 'string';
@@ -18,6 +19,7 @@ export interface IProfile extends Document {
   martial_status: 'string';
   is_enabled: 'boolean';
   is_deleted: 'boolean';
+  address: IAddress[];
 }
 
 const ProfileSchema: Schema = new Schema({
@@ -88,6 +90,10 @@ const ProfileSchema: Schema = new Schema({
   is_deleted: {
     type: 'Boolean',
     require: true,
+  },
+  address: {
+    type: 'Object',
+    require: false,
   },
   profile_type: {
     ref: 'Profiletype',
