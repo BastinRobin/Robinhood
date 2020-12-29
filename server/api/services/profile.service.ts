@@ -4,7 +4,6 @@ import * as crypto from 'crypto';
 import Profile, { IProfile } from './../models/profile';
 import { User } from './../models/user';
 import Address, { IAddress } from './../models/address';
-import Residentbranch, { IResidentbranch } from './../models/residentbranch';
 import DB from '../../common/db/dynamo.db';
 import L from '../../common/logger';
 export class ProfileService {
@@ -64,7 +63,6 @@ export class ProfileService {
       const user: User = body.user;
       const profile: IProfile = body.profile;
       const address: IAddress = body.address;
-      const residentBranch: IResidentbranch = body.resident_branch;
       const encryptionKey = process.env.ENCRYPTION_KEY as string;
       const hash = crypto
         .createHmac('sha512', encryptionKey)
@@ -115,16 +113,6 @@ export class ProfileService {
         await DB.delete('users', { user_name: dbUserParams.user_name });
         await Profile.findByIdAndDelete(newProfile._id);
         throw new Error('Error while creating new address.');
-      }
-
-      // Create resident branch
-      residentBranch.profile = newProfile._id;
-      const newBranch = await Residentbranch.create(residentBranch);
-      if (newBranch instanceof Error) {
-        await DB.delete('users', { user_name: dbUserParams.user_name });
-        await Profile.findByIdAndDelete(newProfile._id);
-        await Address.findByIdAndDelete(newAddress._id);
-        throw new Error('Error while creating resident branch.');
       }
       return newProfile;
     } catch (error) {

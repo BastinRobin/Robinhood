@@ -10,7 +10,6 @@ import profileRouter from './api/controllers/profile/router';
 import nextofkinRouter from './api/controllers/nextofkin/router';
 import addressRouter from './api/controllers/address/router';
 import branchRouter from './api/controllers/branch/router';
-import residentbranchRouter from './api/controllers/residentbranch/router';
 import additionalnotesRouter from './api/controllers/additionalnotes/router';
 import generalinfoRouter from './api/controllers/generalinfo/router';
 import accommodationdetailsRouter from './api/controllers/accommodationdetails/router';
@@ -49,7 +48,6 @@ export default function routes(app: Application): void {
   app.use('/v1/nextofkin/', nextofkinRouter);
   app.use('/v1/address/', addressRouter);
   app.use('/v1/branch/', branchRouter);
-  app.use('/v1/residentbranch/', residentbranchRouter);
   app.use('/v1/additionalnotes/', additionalnotesRouter);
   app.use('/v1/generalinfo/', generalinfoRouter);
   app.use('/v1/accommodationdetails/', accommodationdetailsRouter);
