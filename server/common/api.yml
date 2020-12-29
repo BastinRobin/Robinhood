@@ -84,7 +84,7 @@ definitions:
     ProfilepermissionBody: {type: object, title: Profilepermission, required: [], properties: {permission: {type: string}, profile: {type: string}}}
     ContacttypeBody: {type: object, title: Contacttype, required: [name, page_type], properties: {name: {type: string}, page_type: {type: string, example: 'resident | invoice'}, profile: {type: string}}}
     ContactBody: {type: object, title: Contact, required: [page_type, type, category], properties: {page_type: {type: string, example: 'resident | invoice'}, type: {type: string, example: 'Person | Organisation'}, category: {type: string, example: 'Primary | secondary'}, access_type: {type: string}, comments: {type: string}, contact_type: {type: string}, profile: {type: string}}}
-    ResidentBody: {type: object, title: 'Resident Profile', required: [user, profile, address, resident_branch], properties: {user: {$ref: '#/definitions/UserBody'}, profile: {$ref: '#/definitions/ProfileBody'}, address: {$ref: '#/definitions/AddressBody'}}}
+    ResidentBody: {type: object, title: 'Resident Profile', required: [user, profile, address], properties: {user: {$ref: '#/definitions/UserBody'}, profile: {$ref: '#/definitions/ProfileBody'}, address: {$ref: '#/definitions/AddressBody'}}}
     CarerBody: {type: object, title: 'Carer Profile', properties: {user: {$ref: '#/definitions/UserBody'}, profile: {$ref: '#/definitions/ProfileBody'}, address: {$ref: '#/definitions/AddressBody'}}}
     JobtypeBody: {type: object, title: Jobtype, required: [name], properties: {name: {type: string}}}
 paths:
