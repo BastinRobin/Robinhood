@@ -103,6 +103,10 @@ const ProfileSchema: Schema = new Schema({
     ref: 'Jobtype',
     type: 'ObjectId',
   },
+  branch: {
+    ref: 'Branch',
+    type: 'ObjectId',
+  },
 });
 
 export default mongoose.model<IProfile>('Profile', ProfileSchema);

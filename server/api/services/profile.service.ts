@@ -22,7 +22,8 @@ export class ProfileService {
     try {
       const profiles = await Profile.find({ profile_type: id })
         .populate('profile_type')
-        .populate('job_type');
+        .populate('job_type')
+        .populate('branch');
       for (const profile of profiles) {
         const address = await Address.find({ profile: profile._id });
         profile.address = address;
