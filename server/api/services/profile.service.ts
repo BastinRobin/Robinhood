@@ -161,6 +161,7 @@ export class ProfileService {
       }
 
       if (additional_info) {
+        additional_info.profile = newProfile._id;
         const newAdditionalInfo = await Additionalinfo.create(additional_info);
         if (newAdditionalInfo instanceof Error) {
           await DB.delete('users', { user_name: dbUserParams.user_name });
