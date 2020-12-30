@@ -37,6 +37,8 @@ import profilepermissionRouter from './api/controllers/profilepermission/router'
 import contacttypeRouter from './api/controllers/contacttype/router';
 import contactRouter from './api/controllers/contact/router';
 import jobtypeRouter from './api/controllers/jobtype/router';
+import uploadRouter from './api/controllers/upload/router';
+import additionalinfoRouter from './api/controllers/additionalinfo/router';
 export default function routes(app: Application): void {
   app.use('/v1/users', usersRouter);
   app.use('/v1/tenants/', tenantsRouter);
@@ -75,4 +77,6 @@ export default function routes(app: Application): void {
   app.use('/v1/contacttype/', contacttypeRouter);
   app.use('/v1/contact/', contactRouter);
   app.use('/v1/job_type/', jobtypeRouter);
+  app.use('/v1/upload', uploadRouter);
+  app.use('/v1/additionalinfo/', additionalinfoRouter);
 }
