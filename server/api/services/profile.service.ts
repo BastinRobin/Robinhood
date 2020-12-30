@@ -171,6 +171,7 @@ export class ProfileService {
       }
 
       if (accommodation_details) {
+        accommodation_details.profile = newProfile._id;
         const newAccommodation = await Accommodationdetails.create(
           accommodation_details
         );
