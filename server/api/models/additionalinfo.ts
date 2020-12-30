@@ -6,6 +6,7 @@ export interface IAdditionalinfo extends Document {
   language_spoken: 'string';
   martial_status: 'string';
   mode_of_communication: 'string';
+  profile: 'string';
 }
 
 const AdditionalinfoSchema: Schema = new Schema({

@@ -7,6 +7,7 @@ export interface IAccommodationdetails extends Document {
   living_status: 'string';
   accommodation_info: 'string';
   accommodation_type: 'string';
+  profile: 'string';
 }
 
 const AccommodationdetailsSchema: Schema = new Schema({
