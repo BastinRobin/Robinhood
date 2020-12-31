@@ -255,9 +255,9 @@ export class ProfileService {
     }
   }
 
-  async update(body: CreateQuery<IProfile>, id: string): Promise<IProfile> {
+  async update(body: CreateQuery<any>, id: string): Promise<IProfile> {
     try {
-      return;
+      return await Profile.findByIdAndUpdate(id, body);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
