@@ -76,13 +76,23 @@ export class AuthService {
       );
       console.log('userTenant', userTenant);
       if (userTenant) {
-        for (const item of userTenant.Items) {
-          const tenant: any = await DB.find('tenants', {
-            tenant_id: item.tenant.id,
-          });
-          delete tenant.db_password;
-          delete tenant.db_name;
-          if (tenant) userTenants.push(tenant);
+        for (const item of userTenant) {
+          const tenant: any = await DB.findBy(
+            'tenants',
+            '#id = :v_id',
+            {
+              '#id': 'id',
+            },
+            {
+              ':v_id': item.tenant_id,
+            },
+            'id-index'
+          );
+          if (tenant && tenant.length > 0) {
+            delete tenant[0].db_password;
+            delete tenant[0].db_name;
+            userTenants.push(tenant[0]);
+          }
         }
       }
       return { ...user, auth: true, token, user_tenants: userTenants };
