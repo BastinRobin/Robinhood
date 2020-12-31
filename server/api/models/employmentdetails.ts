@@ -5,11 +5,14 @@ export interface IEmploymentdetails extends Document {
   end_date: 'date';
   dbs_number: 'string';
   car_insurance: 'string';
+  tax_number: 'string';
   monthly_working_hours: 'number';
   location_latitude: 'string';
   location_longitude: 'string';
+  address: 'string';
   travel_mod: 'string';
   rate_per_hour: 'number';
+  profile: 'string';
 }
 
 const EmploymentdetailsSchema: Schema = new Schema({
@@ -29,6 +32,10 @@ const EmploymentdetailsSchema: Schema = new Schema({
     type: 'String',
     require: false,
   },
+  tax_number: {
+    type: 'String',
+    require: true,
+  },
   monthly_working_hours: {
     type: 'Number',
     require: true,
@@ -38,6 +45,10 @@ const EmploymentdetailsSchema: Schema = new Schema({
     require: true,
   },
   location_longitude: {
+    type: 'String',
+    require: true,
+  },
+  address: {
     type: 'String',
     require: true,
   },
