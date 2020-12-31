@@ -146,7 +146,7 @@ export class AuthService {
 
         const dbUserTenantParams = {
           id: new Date().getTime(),
-          user_id: +dbUserParams.id,
+          user_id: dbUserParams.id,
           tenant_id: tenant.id,
           date_created: Date().toString(),
         };
