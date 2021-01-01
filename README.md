@@ -1,6 +1,5 @@
 ## RobinHood Low-Code Microservice Framework
 
-![Architecture](platform.png)
 RobinHood backend architecture has been completely planned on `microservice` as the core `API` exposer.
 
 ### Tech stack
