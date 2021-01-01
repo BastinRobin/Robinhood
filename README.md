@@ -1,7 +1,7 @@
-## CareEasy Microservice Architecture
+## RobinHood Low-Code Microservice Framework
 
-![Architecture](Architecture.png)
-CaseEasy backend architecture has been completely planned on `microservice` as the core `API` exposer.
+![Architecture](platform.png)
+RobinHood backend architecture has been completely planned on `microservice` as the core `API` exposer.
 
 ### Tech stack
 - `Node` with `Express` as http server
@@ -17,12 +17,12 @@ CaseEasy backend architecture has been completely planned on `microservice` as t
 
 ### Typical Lifecycle of Request
 
-- User request the `api.careeasy.com` with login credentials as `JWT Token` payload. 
+- User request the `api.example.com` with login credentials as `JWT Token` payload. 
 - Login route checks for `Authentication` inside dynamoDB users schema and provides a valid `Authorization` with `Auth_Token` and `Auth_Key` as a response to the `Login` request with encryption.
 
 Request:
 ````
-    POST: `api.careeasy.com/auth/login` 
+    POST: `api.example.com/auth/login` 
 
     {
         username: 'demo@gmail.com',
@@ -45,7 +45,7 @@ JWT(Response):
                 experiences: []
             }
             tenants_associated: {
-                'logezycare': {
+                'tenant1': {
                     'TENANT_UUID': '7MA170H',
                     'DB_NAME': '',
                     'DB_PASSWORD': '',
@@ -53,7 +53,7 @@ JWT(Response):
                     'DB_USER': '',
                     'Totat_users': 190
                 },
-                'avantacare': {
+                'tenant2': {
                     'TENANT_UUID': '7MA170G',
                     'DB_NAME': '',
                     'DB_PASSWORD': '',
@@ -167,21 +167,21 @@ npm run test:debug
 
 ````
   # User modules
-  https://api.careazy.com/v1/users/
-  https://api.careazy.com/v1/users/findInvalid
-  https://api.careazy.com/v1/users/activeUsers
-  https://api.careazy.com/v1/users/onlineUsersAllocated
+  https://api.example.com/v1/users/
+  https://api.example.com/v1/users/findInvalid
+  https://api.example.com/v1/users/activeUsers
+  https://api.example.com/v1/users/onlineUsersAllocated
 
 
   # Tenants modules
-  https://api.careazy.com/v1/tenants/
-  https://api.careazy.com/v1/tenants/newOrganization
-  https://api.careazy.com/v1/tenants/activity_logs
+  https://api.example.com/v1/tenants/
+  https://api.example.com/v1/tenants/newOrganization
+  https://api.example.com/v1/tenants/activity_logs
 
 
   # Request headers 
 
-  - https://api.careazy.com/v1/users/activeUsers
+  - https://api.example.com/v1/users/activeUsers
     - Auth_key: username hashed
     - Auth_token: everyday it refreshes and create a new hash
     - tsc_id: 'microsoft'
