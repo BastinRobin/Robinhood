@@ -1,10 +1,10 @@
 import { CreateQuery } from 'mongoose';
-import Address, { IAddress } from './../models/address';
+import Jobtype, { IJobtype } from './../models/jobtype';
 import L from '../../common/logger';
-export class AddressService {
-  async findAll(): Promise<IAddress[]> {
+export class JobtypeService {
+  async findAll(): Promise<IJobtype[]> {
     try {
-      return await Address.find().populate('addresstype');
+      return await Jobtype.find();
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -13,9 +13,9 @@ export class AddressService {
     }
   }
 
-  async findById(id: string): Promise<IAddress> {
+  async findById(id: string): Promise<IJobtype> {
     try {
-      return await Address.findById(id).populate('addresstype');
+      return await Jobtype.findById(id);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -24,9 +24,9 @@ export class AddressService {
     }
   }
 
-  async create(body: CreateQuery<IAddress>): Promise<IAddress> {
+  async create(body: CreateQuery<IJobtype>): Promise<IJobtype> {
     try {
-      return await Address.create(body);
+      return await Jobtype.create(body);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -35,9 +35,9 @@ export class AddressService {
     }
   }
 
-  async update(body: CreateQuery<IAddress>, id: string): Promise<IAddress> {
+  async update(body: CreateQuery<IJobtype>, id: string): Promise<IJobtype> {
     try {
-      return await Address.findByIdAndUpdate(id, body);
+      return await Jobtype.findByIdAndUpdate(id, body);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -46,9 +46,9 @@ export class AddressService {
     }
   }
 
-  async deleteById(id: string): Promise<IAddress> {
+  async deleteById(id: string): Promise<IJobtype> {
     try {
-      return await Address.findByIdAndDelete(id);
+      return await Jobtype.findByIdAndDelete(id);
     } catch (error) {
       if (error) {
         L.error('Error ', error);
@@ -58,4 +58,4 @@ export class AddressService {
   }
 }
 
-export default new AddressService();
+export default new JobtypeService();

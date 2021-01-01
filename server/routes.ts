@@ -10,7 +10,6 @@ import profileRouter from './api/controllers/profile/router';
 import nextofkinRouter from './api/controllers/nextofkin/router';
 import addressRouter from './api/controllers/address/router';
 import branchRouter from './api/controllers/branch/router';
-import residentbranchRouter from './api/controllers/residentbranch/router';
 import additionalnotesRouter from './api/controllers/additionalnotes/router';
 import generalinfoRouter from './api/controllers/generalinfo/router';
 import accommodationdetailsRouter from './api/controllers/accommodationdetails/router';
@@ -35,6 +34,11 @@ import residentdocumentRouter from './api/controllers/residentdocument/router';
 import profiledocumentRouter from './api/controllers/profiledocument/router';
 import permissionsRouter from './api/controllers/permissions/router';
 import profilepermissionRouter from './api/controllers/profilepermission/router';
+import contacttypeRouter from './api/controllers/contacttype/router';
+import contactRouter from './api/controllers/contact/router';
+import jobtypeRouter from './api/controllers/jobtype/router';
+import uploadRouter from './api/controllers/upload/router';
+import additionalinfoRouter from './api/controllers/additionalinfo/router';
 export default function routes(app: Application): void {
   app.use('/v1/users', usersRouter);
   app.use('/v1/tenants/', tenantsRouter);
@@ -46,7 +50,6 @@ export default function routes(app: Application): void {
   app.use('/v1/nextofkin/', nextofkinRouter);
   app.use('/v1/address/', addressRouter);
   app.use('/v1/branch/', branchRouter);
-  app.use('/v1/residentbranch/', residentbranchRouter);
   app.use('/v1/additionalnotes/', additionalnotesRouter);
   app.use('/v1/generalinfo/', generalinfoRouter);
   app.use('/v1/accommodationdetails/', accommodationdetailsRouter);
@@ -71,4 +74,9 @@ export default function routes(app: Application): void {
   app.use('/v1/profiledocument/', profiledocumentRouter);
   app.use('/v1/permissions/', permissionsRouter);
   app.use('/v1/profilepermission/', profilepermissionRouter);
+  app.use('/v1/contacttype/', contacttypeRouter);
+  app.use('/v1/contact/', contactRouter);
+  app.use('/v1/job_type/', jobtypeRouter);
+  app.use('/v1/upload', uploadRouter);
+  app.use('/v1/additionalinfo/', additionalinfoRouter);
 }

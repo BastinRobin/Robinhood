@@ -1,5 +1,13 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+import { IAddress } from './address';
+import { IAdditionalinfo } from './additionalinfo';
+import { IAdditionalnotes } from './additionalnotes';
+import { IAccommodationdetails } from './accommodationdetails';
+import { ICarerskill } from './carerskill';
+import { ICarerspacialities } from './carerspacialities';
+import { IGeneralinfo } from './generalinfo';
+
 export interface IProfile extends Document {
   user_id: 'string';
   title: 'string';
@@ -18,6 +26,13 @@ export interface IProfile extends Document {
   martial_status: 'string';
   is_enabled: 'boolean';
   is_deleted: 'boolean';
+  address: IAddress[];
+  additional_info: IAdditionalinfo;
+  additional_notes: IAdditionalnotes[];
+  accommodation_details: IAccommodationdetails;
+  carer_skill: ICarerskill[];
+  carer_specialities: ICarerspacialities[];
+  general_info: IGeneralinfo;
 }
 
 const ProfileSchema: Schema = new Schema({
@@ -73,14 +88,6 @@ const ProfileSchema: Schema = new Schema({
     type: 'Date',
     require: true,
   },
-  religion: {
-    type: 'String',
-    require: false,
-  },
-  martial_status: {
-    type: 'String',
-    require: false,
-  },
   is_enabled: {
     type: 'Boolean',
     require: true,
@@ -89,8 +96,44 @@ const ProfileSchema: Schema = new Schema({
     type: 'Boolean',
     require: true,
   },
+  address: {
+    type: 'Object',
+    require: false,
+  },
+  additional_info: {
+    type: 'Object',
+    require: false,
+  },
+  additional_notes: {
+    type: 'Object',
+    require: false,
+  },
+  accommodation_details: {
+    type: 'Object',
+    require: false,
+  },
+  carer_skill: {
+    type: 'Object',
+    require: false,
+  },
+  carer_specialities: {
+    type: 'Object',
+    require: false,
+  },
+  general_info: {
+    type: 'Object',
+    require: false,
+  },
   profile_type: {
     ref: 'Profiletype',
+    type: 'ObjectId',
+  },
+  job_type: {
+    ref: 'Jobtype',
+    type: 'ObjectId',
+  },
+  branch: {
+    ref: 'Branch',
     type: 'ObjectId',
   },
 });

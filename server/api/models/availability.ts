@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IAvailability extends Document {
   date: 'date';
   status: 'number';
+  profile: 'string';
 }
 
 const AvailabilitySchema: Schema = new Schema({

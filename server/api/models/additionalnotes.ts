@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IAdditionalnotes extends Document {
   note: 'string';
   type: 'string';
+  profile: 'string';
 }
 
 const AdditionalnotesSchema: Schema = new Schema({

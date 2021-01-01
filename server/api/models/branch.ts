@@ -7,6 +7,7 @@ export interface IBranch extends Document {
   postal_code: 'string';
   town: 'string';
   street: 'string';
+  country: 'string';
   is_enabled: 'boolean';
 }
 
@@ -40,8 +41,8 @@ const BranchSchema: Schema = new Schema({
     require: true,
   },
   country: {
-    ref: 'Country',
-    type: 'ObjectId',
+    ref: 'String',
+    require: false,
   },
 });
 

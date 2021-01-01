@@ -4,19 +4,19 @@ import { expect } from 'chai';
 import request from 'supertest';
 import Server from '../server';
 let id = null;
-describe('residentbranch', () => {
-  it('should get all residentbranch', () =>
+describe('Contact', () => {
+  it('should get all contact', () =>
     request(Server)
-      .get('/v1/residentbranch')
+      .get('/v1/contact')
       .set({ token: process.env.UNIT_TESTING_AUTH_TOKEN })
       .expect('Content-Type', /json/)
       .then((r) => {
         expect(r.body).to.be.an('array').of.length.to.not.equal(0);
       }));
 
-  it('should add a new residentbranch', () =>
+  it('should add a new contact', () =>
     request(Server)
-      .post('/v1/residentbranch')
+      .post('/v1/contact')
       .set({ token: process.env.UNIT_TESTING_AUTH_TOKEN })
       .send({ name: 'test' })
       .expect('Content-Type', /json/)
@@ -28,9 +28,9 @@ describe('residentbranch', () => {
           .equal('test');
       }));
 
-  it('should get an residentbranch by id', () =>
+  it('should get an contact by id', () =>
     request(Server)
-      .get(`/v1/residentbranch/${id}`)
+      .get(`/v1/contact/${id}`)
       .set({ token: process.env.UNIT_TESTING_AUTH_TOKEN })
       .expect('Content-Type', /json/)
       .then((r) => {
@@ -40,9 +40,9 @@ describe('residentbranch', () => {
           .equal('test');
       }));
 
-  it('should delete residentbranch by id', () =>
+  it('should delete contact by id', () =>
     request(Server)
-      .delete(`/v1/residentbranch/${id}`)
+      .delete(`/v1/contact/${id}`)
       .set({ token: process.env.UNIT_TESTING_AUTH_TOKEN })
       .expect('Content-Type', /json/)
       .then((r) => {
@@ -52,9 +52,9 @@ describe('residentbranch', () => {
           .equal('test');
       }));
 
-  it('should not get an residentbranch when id is null', () =>
+  it('should not get an contact when id is null', () =>
     request(Server)
-      .get(`/v1/residentbranch/null`)
+      .get(`/v1/contact/null`)
       .set({ token: process.env.UNIT_TESTING_AUTH_TOKEN })
       .expect('Content-Type', /json/)
       .then((r) => {
@@ -63,18 +63,18 @@ describe('residentbranch', () => {
         );
       }));
 
-  it('should not get an residentbranch when url not found', () =>
+  it('should not get an contact when url not found', () =>
     request(Server)
-      .get(`/v1/residentbranchs/`)
+      .get(`/v1/contacts/`)
       .set({ token: process.env.UNIT_TESTING_AUTH_TOKEN })
       .expect('Content-Type', /text/)
       .then((r) => {
         expect(r.status).equal(404);
       }));
 
-  it('should not delete residentbranch when id is null', () =>
+  it('should not delete contact when id is null', () =>
     request(Server)
-      .delete(`/v1/residentbranch/null`)
+      .delete(`/v1/contact/null`)
       .set({ token: process.env.UNIT_TESTING_AUTH_TOKEN })
       .expect('Content-Type', /json/)
       .then((r) => {

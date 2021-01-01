@@ -52,6 +52,10 @@ export class AuthService {
         throw new Error('User not exist.');
       }
 
+      if (!user.enabled) {
+        throw new Error('User disabled please contact administrator');
+      }
+
       if (user.password !== UserHashedPass) {
         throw new Error('Invalid username or password');
       }
@@ -72,13 +76,23 @@ export class AuthService {
       );
       console.log('userTenant', userTenant);
       if (userTenant) {
-        for (const item of userTenant.Items) {
-          const tenant: any = await DB.find('tenants', {
-            tenant_id: item.tenant.id,
-          });
-          delete tenant.db_password;
-          delete tenant.db_name;
-          if (tenant) userTenants.push(tenant);
+        for (const item of userTenant) {
+          const tenant: any = await DB.findBy(
+            'tenants',
+            '#id = :v_id',
+            {
+              '#id': 'id',
+            },
+            {
+              ':v_id': item.tenant_id,
+            },
+            'id-index'
+          );
+          if (tenant && tenant.length > 0) {
+            delete tenant[0].db_password;
+            delete tenant[0].db_name;
+            userTenants.push(tenant[0]);
+          }
         }
       }
       return { ...user, auth: true, token, user_tenants: userTenants };
@@ -142,7 +156,7 @@ export class AuthService {
 
         const dbUserTenantParams = {
           id: new Date().getTime(),
-          user_id: +dbUserParams.id,
+          user_id: dbUserParams.id,
           tenant_id: tenant.id,
           date_created: Date().toString(),
         };

@@ -1,4 +1,4 @@
-import residentbranchService from '../../services/residentbranch.service';
+import AdditionalinfoService from '../../services/additionalinfo.service';
 import { Request, Response } from 'express';
 export class Controller {
   /**
@@ -10,7 +10,7 @@ export class Controller {
    * @return  {void}           [return description]
    */
   index(req: Request, res: Response): void {
-    residentbranchService.findAll().then((r) => res.json(r));
+    AdditionalinfoService.findAll().then((r) => res.json(r));
   }
 
   /**
@@ -23,7 +23,7 @@ export class Controller {
    */
   show(req: Request, res: Response): void {
     const id = req.params['id'];
-    residentbranchService.findById(id).then((r) => res.json(r));
+    AdditionalinfoService.findById(id).then((r) => res.json(r));
   }
 
   /**
@@ -36,7 +36,7 @@ export class Controller {
    */
   store(req: Request, res: Response): void {
     const body = req.body;
-    residentbranchService.create(body).then((r) => res.json(r));
+    AdditionalinfoService.create(body).then((r) => res.json(r));
   }
 
   /**
@@ -50,7 +50,7 @@ export class Controller {
   update(req: Request, res: Response): void {
     const body = req.body;
     const id = req.params['id'];
-    residentbranchService.update(body, id).then((r) => res.json(r));
+    AdditionalinfoService.update(body, id).then((r) => res.json(r));
   }
 
   /**
@@ -63,7 +63,7 @@ export class Controller {
    */
   delete(req: Request, res: Response): void {
     const id = req.params['id'];
-    residentbranchService.deleteById(id).then((r) => res.json(r));
+    AdditionalinfoService.deleteById(id).then((r) => res.json(r));
   }
 }
 
