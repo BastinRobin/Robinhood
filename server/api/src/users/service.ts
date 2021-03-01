@@ -1,6 +1,6 @@
-import L from '../../common/logger';
-import DB from '../../common/db/dynamo.db';
-import { User } from './../../api/models/user';
+import L from '../../../common/logger';
+import DB from '../../../common/db/dynamo.db';
+import { User } from './model';
 
 import * as crypto from 'crypto';
 

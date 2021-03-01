@@ -1,14 +1,12 @@
-import L from '../../common/logger';
-import DB from '../../common/db/dynamo.db';
-import { Tenant } from './../../api/models/tenant';
-import { CommonService } from './../services/common.service';
+import L from '../../../common/logger';
+import DB from '../../../common/db/dynamo.db';
+import { Tenant } from '../tenants/model';
+import * as slugGenerator from 'slug-generator';
 
 export class TenantService {
   async create(params: any): Promise<Tenant> {
     L.info(`Creating new tenant with name ${params.tenant_name}`);
-    const tenantName = await CommonService.convertToSlug(
-      params.organization.toString()
-    );
+    const tenantName = slugGenerator(params.organization.toString(), '_');
     const organization = params.organization.toString();
     const email = params.email.toString();
     const dbName = tenantName;

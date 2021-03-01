@@ -1,4 +1,4 @@
-import ExamplesService from '../../services/examples.service';
+import ExamplesService from './service';
 import { Request, Response } from 'express';
 export class Controller {
   /**
@@ -64,6 +64,30 @@ export class Controller {
   delete(req: Request, res: Response): void {
     const id = req.params['id'];
     ExamplesService.deleteById(id).then((r) => res.json(r));
+  }
+
+  /**
+   * Delete all record
+   *
+   * @param   {Request}   req  [req description]
+   * @param   {Response}  res  [res description]
+   *
+   * @return  {void}           [return description]
+   */
+  deleteAll(req: Request, res: Response): void {
+    ExamplesService.deleteAll().then((r) => res.json(r));
+  }
+
+  /**
+   * Count all record
+   *
+   * @param   {Request}   req  [req description]
+   * @param   {Response}  res  [res description]
+   *
+   * @return  {void}           [return description]
+   */
+  count(req: Request, res: Response): void {
+    ExamplesService.count().then((r) => res.json(r));
   }
 }
 

@@ -131,6 +131,40 @@ export class DB {
   };
 
   /**
+   * [Update to add new records in table]
+   *
+   * @param   {tableName}   tableName   [Name of the dynamo DB table]
+   * @param   {params}      params      [Data to save]
+   *
+   * @return  {Promise<string[]>}        [return description]
+   */
+  update = async (tableName: string, Key: unknown, Item: any): Promise<any> => {
+    try {
+      let updateExpression = 'set';
+      const ExpressionAttributeNames = {};
+      const ExpressionAttributeValues = {};
+      for (const property in Item) {
+        updateExpression += ` #${property} = :${property} ,`;
+        ExpressionAttributeNames['#' + property] = property;
+        ExpressionAttributeValues[':' + property] = Item[property];
+      }
+      updateExpression = updateExpression.slice(0, -1);
+      const params = {
+        TableName: tableName,
+        Key: Key,
+        UpdateExpression: updateExpression,
+        ExpressionAttributeNames: ExpressionAttributeNames,
+        ExpressionAttributeValues: ExpressionAttributeValues,
+      };
+      const res = await AWSDDB.update(params).promise();
+      return res;
+    } catch (err) {
+      console.log('Failure', err);
+      return err.message;
+    }
+  };
+
+  /**
    * [delete to remove a records from table]
    *
    * @param   {TableName}   TableName   [Name of the dynamo DB table]
