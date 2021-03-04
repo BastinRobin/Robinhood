@@ -6,4 +6,6 @@ export default express
   .get('/:id', controller.show)
   .post('/', controller.store)
   .put('/:id', controller.update)
-  .delete('/:id', controller.delete);
+  .delete('/', controller.deleteAll)
+  .delete('/:id', controller.delete)
+  .get('/count/all', controller.count);

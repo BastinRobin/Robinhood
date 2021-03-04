@@ -5,4 +5,5 @@ export default express
   .post('/login', controller.login)
   .post('/client/signup', controller.clientSignup)
   .post('/carer/signup', controller.carerSignup)
-  .get('/logout', controller.login);
+  .get('/logout', controller.login)
+  .post('/generate/jwt', controller.generateJWT);
